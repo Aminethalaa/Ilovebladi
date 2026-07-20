@@ -1,0 +1,4 @@
+# Runtime uploads (keep folder, ignore photos)
+uploads/*
+!uploads/.htaccess
+!uploads/index.html

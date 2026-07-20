@@ -1,0 +1,8 @@
+# Never execute scripts inside the uploads directory
+<FilesMatch "\.(php|phtml|php3|php4|php5|php7|phps|pht|cgi|pl|py|sh)$">
+Require all denied
+</FilesMatch>
+<IfModule mod_php.c>
+php_flag engine off
+</IfModule>
+Options -Indexes -ExecCGI

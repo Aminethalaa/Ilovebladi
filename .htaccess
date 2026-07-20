@@ -1,0 +1,22 @@
+# Baladiyati — Apache configuration for cPanel hosting
+Options -Indexes
+
+# Protect application internals
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^includes/ - [F,L]
+RewriteRule ^database\.sql$ - [F,L]
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "SAMEORIGIN"
+Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Sensible PHP upload limits (ignored if the host forbids overrides)
+<IfModule mod_php.c>
+php_value upload_max_filesize 8M
+php_value post_max_size 10M
+</IfModule>
