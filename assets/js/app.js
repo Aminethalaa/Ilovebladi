@@ -134,12 +134,17 @@ document.addEventListener('DOMContentLoaded', function () {
     typeRadios.forEach(function (r) { r.addEventListener('change', refresh); });
   }
 
-  // New complaint: category picker highlight
-  document.querySelectorAll('.cat-picker input[type="radio"]').forEach(function (r) {
+  // Category picker highlight (radios for complaints, checkboxes for association domains)
+  document.querySelectorAll('.cat-picker input').forEach(function (r) {
     r.addEventListener('change', function () {
-      document.querySelectorAll('.cat-opt').forEach(function (o) {
-        o.classList.toggle('on', o.querySelector('input').checked);
-      });
+      var opt = r.closest('.cat-opt');
+      if (r.type === 'radio') {
+        document.querySelectorAll('.cat-picker .cat-opt').forEach(function (o) {
+          o.classList.toggle('on', o.querySelector('input').checked);
+        });
+      } else if (opt) {
+        opt.classList.toggle('on', r.checked);
+      }
     });
   });
 });

@@ -23,6 +23,7 @@
     <nav class="footer-links">
       <?php if (module_on('complaints')): ?><a href="<?= e(url('complaints.php')) ?>"><?= e(t('nav_complaints')) ?></a><?php endif; ?>
       <?php if (module_on('trees')): ?><a href="<?= e(url('trees.php')) ?>"><?= e(t('nav_trees')) ?></a><?php endif; ?>
+      <?php if (module_on('associations')): ?><a href="<?= e(url('associations.php')) ?>"><?= e(t('nav_directory')) ?></a><?php endif; ?>
       <?php if (module_on('leaderboard')): ?><a href="<?= e(url('leaderboard.php')) ?>"><?= e(t('nav_leaderboard')) ?></a><?php endif; ?>
       <a href="<?= e(url('register.php')) ?>"><?= e(t('nav_register')) ?></a>
     </nav>

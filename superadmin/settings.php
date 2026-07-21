@@ -78,10 +78,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setting_set($k, '');
         }
     } elseif (!empty($_FILES['logo']['name'])) {
-        $logo = upload_photo($_FILES['logo'], $lerr);
+        // Icons are generated from the full-resolution upload first, then the
+        // stored logo is downscaled for fast page loads.
+        $logo = upload_photo($_FILES['logo'], $lerr, null);
         if ($logo) {
-            setting_set('site_logo', $logo);
             generate_site_icons($logo);
+            resize_image_file(UPLOAD_PATH . '/' . $logo, 512);
+            setting_set('site_logo', $logo);
         } else {
             flash_set('error', t($lerr ?? 'err_photo_upload'));
             redirect('superadmin/settings.php');

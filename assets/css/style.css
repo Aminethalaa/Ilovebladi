@@ -402,6 +402,36 @@ input[type='file'] { padding: 8px; background: var(--green-light); border-style:
 @keyframes celebrate-bg { 0% {background-position: 0 0;} 50% {background-position: 100% 0;} 100% {background-position: 0 0;} }
 @keyframes celebrate-pop { 0% {transform: scale(0.96);} 60% {transform: scale(1.02);} 100% {transform: scale(1);} }
 
+/* ---------- association directory ---------- */
+.cat-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-block: 14px; }
+.cat-chip {
+  padding: 7px 14px; border-radius: 999px; font-weight: 700; font-size: 0.88rem;
+  background: var(--card); color: var(--muted); box-shadow: var(--shadow); white-space: nowrap;
+}
+.cat-chip.on { background: var(--green); color: #fff; }
+.assoc-card { display: flex; flex-direction: column; gap: 10px; padding: 16px; color: inherit; transition: transform 0.12s, box-shadow 0.15s; }
+.assoc-card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(0, 40, 20, 0.13); }
+.assoc-card-head { display: flex; align-items: center; gap: 12px; }
+.assoc-card-head h3 { font-size: 1.05rem; }
+.assoc-logo {
+  width: 56px; height: 56px; border-radius: 14px; object-fit: contain;
+  background: var(--green-light); flex-shrink: 0; box-shadow: inset 0 0 0 1px var(--line);
+}
+.assoc-logo-ph { display: grid; place-items: center; font-size: 1.7rem; }
+.assoc-cats { display: flex; gap: 6px; flex-wrap: wrap; }
+.assoc-about { color: var(--muted); font-size: 0.9rem; }
+.assoc-hero { display: flex; align-items: center; gap: 18px; }
+.assoc-hero-logo { width: 96px; height: 96px; border-radius: 18px; object-fit: contain; background: var(--green-light); flex-shrink: 0; box-shadow: inset 0 0 0 1px var(--line); }
+.assoc-hero-logo.assoc-logo-ph { display: grid; place-items: center; font-size: 3rem; }
+.assoc-hero-main h1 { font-size: 1.5rem; margin-bottom: 4px; }
+.contact-list { list-style: none; display: grid; gap: 10px; }
+.contact-list li { word-break: break-word; }
+@media (max-width: 700px) {
+  .cat-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .cat-chips::-webkit-scrollbar { display: none; }
+  .assoc-hero { flex-direction: column; text-align: center; }
+}
+
 /* ---------- PWA + push ---------- */
 .install-btn {
   position: fixed; bottom: 18px; inset-inline-end: 18px; z-index: 1200;

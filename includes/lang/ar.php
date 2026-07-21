@@ -204,6 +204,28 @@ return [
     'assoc_browse_open' => 'تصفح البلاغات المفتوحة في ولايتكم',
     'assoc_none_taken' => 'ما تكفلتو بعد بحتى بلاغ. تصفحو البلاغات المنشورة وابداو!',
 
+    // Association directory
+    'nav_directory' => 'دليل الجمعيات',
+    'dir_title' => 'دليل الجمعيات',
+    'dir_count' => '%d جمعية معتمدة',
+    'dir_all_cats' => 'كل المجالات',
+    'dir_search' => 'ابحث عن جمعية بالاسم',
+    'dir_about' => 'عن الجمعية',
+    'dir_recent_fixes' => 'آخر الإصلاحات',
+    'dir_campaigns' => 'حملات الغرس',
+    'dir_contact' => 'الاتصال',
+    'dir_associations' => 'الجمعيات',
+    'assoc_since' => 'تأسست سنة',
+    'assoc_view_public' => 'عرض صفحتكم العمومية في الدليل',
+    'assoc_logo' => 'شعار الجمعية',
+    'assoc_logo_hint' => 'يظهر في الدليل وصفحة الجمعية. يفضل صورة مربعة.',
+    'assoc_founded' => 'سنة التأسيس',
+    'assoc_website' => 'الموقع الإلكتروني',
+    'assoc_address' => 'العنوان',
+    'assoc_categories_label' => 'مجالات نشاط الجمعية (اختر ما يناسبكم)',
+    'sa_manage_assoc_cats' => 'مجالات الجمعيات',
+    'sa_new_assoc_cat' => 'مجال جديد',
+
     // Leaderboard
     'lb_title' => 'الترتيب والتنافس',
     'lb_sub' => 'الشفافية بالأرقام: أحسن البلديات والولايات والمواطنين والجمعيات.',

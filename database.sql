@@ -6,7 +6,8 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS tree_confirms, tree_plantings, tree_campaigns,
+DROP TABLE IF EXISTS user_assoc_categories, assoc_profiles, assoc_categories,
+    tree_confirms, tree_plantings, tree_campaigns,
     push_subscriptions, settings, user_badges, badges, points_log,
     notifications, upvotes, complaint_events, complaints, categories, users, communes, wilayas;
 SET FOREIGN_KEY_CHECKS = 1;
@@ -68,6 +69,50 @@ CREATE TABLE tree_confirms (
   created_at DATETIME NOT NULL,
   PRIMARY KEY (planting_id, user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Association directory: activity domains, extended profiles, and the
+-- many-to-many link between associations and domains. (These also
+-- auto-create on first use, so existing databases need no migration.)
+CREATE TABLE assoc_categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  icon VARCHAR(16) NOT NULL DEFAULT '🏷️',
+  name_ar VARCHAR(80) NOT NULL,
+  name_fr VARCHAR(80) NOT NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  sort INT NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE assoc_profiles (
+  user_id INT PRIMARY KEY,
+  logo VARCHAR(120) NULL,
+  phone VARCHAR(40) NULL,
+  website VARCHAR(190) NULL,
+  facebook VARCHAR(190) NULL,
+  address VARCHAR(190) NULL,
+  founded_year SMALLINT NULL,
+  updated_at DATETIME NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE user_assoc_categories (
+  user_id INT NOT NULL,
+  category_id INT NOT NULL,
+  PRIMARY KEY (user_id, category_id),
+  KEY idx_cat (category_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO assoc_categories (icon, name_ar, name_fr, sort) VALUES
+('🌿', 'البيئة والنظافة', 'Environnement et propreté', 1),
+('🤝', 'التضامن والعمل الاجتماعي', 'Solidarité et action sociale', 2),
+('🎭', 'الثقافة والفنون', 'Culture et arts', 3),
+('⚽', 'الرياضة', 'Sport', 4),
+('🏥', 'الصحة', 'Santé', 5),
+('📚', 'التربية والتعليم', 'Éducation', 6),
+('🧒', 'الطفولة والشباب', 'Enfance et jeunesse', 7),
+('♿', 'ذوو الاحتياجات الخاصة', 'Personnes à besoins spécifiques', 8),
+('🏘️', 'التنمية المحلية', 'Développement local', 9),
+('🕌', 'الأعمال الخيرية', 'Œuvres caritatives', 10),
+('👵', 'كبار السن', 'Personnes âgées', 11),
+('🐾', 'الرفق بالحيوان', 'Protection animale', 12);
 
 CREATE TABLE wilayas (
   id INT PRIMARY KEY,

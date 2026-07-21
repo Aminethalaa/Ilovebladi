@@ -43,6 +43,7 @@ require __DIR__ . '/../includes/layout/header.php';
     <a class="card card-pad quick" href="<?= e(url('superadmin/communes.php')) ?>">🗺️ <?= e(t('sa_manage_communes')) ?></a>
     <a class="card card-pad quick" href="<?= e(url('admin/notify.php')) ?>">📣 <?= e(t('notify_page_title')) ?></a>
     <a class="card card-pad quick" href="<?= e(url('superadmin/settings.php')) ?>">🎨 <?= e(t('sa_site_settings')) ?></a>
+    <a class="card card-pad quick" href="<?= e(url('superadmin/assoc-categories.php')) ?>">🏷️ <?= e(t('sa_manage_assoc_cats')) ?></a>
   </div>
 
   <?php require BASE_PATH . '/includes/layout/push-card.php'; ?>

@@ -152,7 +152,7 @@ function flash_render(): string
  * Validate + store an uploaded image. Returns stored filename, or null with
  * $error set to a translation key.
  */
-function upload_photo(array $file, ?string &$error): ?string
+function upload_photo(array $file, ?string &$error, ?int $maxDim = 1600): ?string
 {
     $error = null;
     if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
@@ -177,11 +177,62 @@ function upload_photo(array $file, ?string &$error): ?string
     if (!is_dir(UPLOAD_PATH)) {
         @mkdir(UPLOAD_PATH, 0755, true);
     }
-    if (!move_uploaded_file($file['tmp_name'], UPLOAD_PATH . '/' . $name)) {
+    $dest = UPLOAD_PATH . '/' . $name;
+    if (!move_uploaded_file($file['tmp_name'], $dest)) {
         $error = 'err_photo_upload';
         return null;
     }
+    if ($maxDim !== null) {
+        resize_image_file($dest, $maxDim);
+    }
     return $name;
+}
+
+/**
+ * Downscale an image file in place so neither side exceeds $maxDim,
+ * preserving aspect ratio. Only shrinks; never enlarges. Best-effort:
+ * leaves the original untouched if GD is unavailable or the file is small.
+ */
+function resize_image_file(string $path, int $maxDim): void
+{
+    if (!function_exists('imagecreatetruecolor') || $maxDim < 1) {
+        return;
+    }
+    $info = @getimagesize($path);
+    if (!$info) {
+        return;
+    }
+    [$w, $h] = $info;
+    if ($w <= $maxDim && $h <= $maxDim) {
+        return;
+    }
+    $mime = $info['mime'];
+    switch ($mime) {
+        case 'image/jpeg': $src = @imagecreatefromjpeg($path); break;
+        case 'image/png':  $src = @imagecreatefrompng($path); break;
+        case 'image/webp': $src = @imagecreatefromwebp($path); break;
+        default:           return;
+    }
+    if (!$src) {
+        return;
+    }
+    $scale = $maxDim / max($w, $h);
+    $nw = max(1, (int) round($w * $scale));
+    $nh = max(1, (int) round($h * $scale));
+    $dst = imagecreatetruecolor($nw, $nh);
+    if ($mime === 'image/png' || $mime === 'image/webp') {
+        imagealphablending($dst, false);
+        imagesavealpha($dst, true);
+        imagefilledrectangle($dst, 0, 0, $nw, $nh, imagecolorallocatealpha($dst, 0, 0, 0, 127));
+    }
+    imagecopyresampled($dst, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
+    switch ($mime) {
+        case 'image/jpeg': imagejpeg($dst, $path, 85); break;
+        case 'image/png':  imagepng($dst, $path, 6); break;
+        case 'image/webp': imagewebp($dst, $path, 85); break;
+    }
+    imagedestroy($src);
+    imagedestroy($dst);
 }
 
 // ---------------------------------------------------------------- statuses

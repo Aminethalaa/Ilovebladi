@@ -70,6 +70,9 @@ if ($hexOk($cPrimary) || $hexOk($cAccent) || $hexOk($cGold)): ?>
       <?php if (module_on('trees')): ?>
       <a href="<?= e(url('trees.php')) ?>">🌳 <?= e(t('nav_trees')) ?></a>
       <?php endif; ?>
+      <?php if (module_on('associations')): ?>
+      <a href="<?= e(url('associations.php')) ?>"><?= e(t('nav_directory')) ?></a>
+      <?php endif; ?>
       <?php if (module_on('leaderboard')): ?>
       <a href="<?= e(url('leaderboard.php')) ?>"><?= e(t('nav_leaderboard')) ?></a>
       <?php endif; ?>

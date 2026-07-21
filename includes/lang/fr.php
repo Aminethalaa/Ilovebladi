@@ -204,6 +204,28 @@ return [
     'assoc_browse_open' => 'Voir les signalements ouverts de votre wilaya',
     'assoc_none_taken' => "Aucune prise en charge pour l'instant. Parcourez les signalements publiés et lancez-vous !",
 
+    // Association directory
+    'nav_directory' => 'Annuaire des associations',
+    'dir_title' => 'Annuaire des associations',
+    'dir_count' => '%d associations vérifiées',
+    'dir_all_cats' => 'Tous les domaines',
+    'dir_search' => 'Rechercher une association par nom',
+    'dir_about' => "À propos de l'association",
+    'dir_recent_fixes' => 'Dernières réparations',
+    'dir_campaigns' => 'Campagnes de plantation',
+    'dir_contact' => 'Contact',
+    'dir_associations' => 'Associations',
+    'assoc_since' => 'Fondée en',
+    'assoc_view_public' => "Voir votre page publique dans l'annuaire",
+    'assoc_logo' => "Logo de l'association",
+    'assoc_logo_hint' => "Affiché dans l'annuaire et la page de l'association. Image carrée recommandée.",
+    'assoc_founded' => 'Année de fondation',
+    'assoc_website' => 'Site web',
+    'assoc_address' => 'Adresse',
+    'assoc_categories_label' => "Domaines d'activité de l'association (cochez ce qui convient)",
+    'sa_manage_assoc_cats' => 'Domaines des associations',
+    'sa_new_assoc_cat' => 'Nouveau domaine',
+
     // Leaderboard
     'lb_title' => 'Classement et compétition',
     'lb_sub' => 'La transparence par les chiffres : meilleures communes, wilayas, citoyens et associations.',

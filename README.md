@@ -60,6 +60,25 @@ public leaderboards** for communes, wilayas, citizens and associations.
   automatically), pick the three theme colors with a live color picker, and set footer
   contact info — so the same platform can be deployed for any commune, association or
   community under its own identity. Empty fields fall back to the Baladiyati defaults.
+- **Feature modules**: switch whole sections (complaints, tree campaigns, leaderboard,
+  association sign-up) on or off from the site-identity page.
+- **Association domains (مجالات الجمعيات)**: manage the activity categories associations can
+  belong to (add/disable).
+
+### 🤝 Association directory (دليل الجمعيات)
+- Public, searchable directory of verified associations with logo, activity domains
+  (environment, solidarity, culture, sport, health…), commune/wilaya, and a short description.
+- Filter by domain (category chips), wilaya/commune, and free-text name search.
+- Each association has a public profile page: full description, all domains, contact block
+  (email, phone, website, Facebook, address, founding year), activity stats (fixes, tree
+  campaigns, trees, points), badges, and their recent resolved complaints and campaigns.
+- Associations edit their own logo, contact info and domains from their profile page.
+- The directory tables auto-create (and the domain list auto-seeds) on first use — existing
+  databases need **no migration**.
+
+**Uploaded images are auto-resized** on upload (photos capped at 1600px, logos at 512px)
+to keep storage and page loads light on shared hosting; PWA icons are always generated at
+exactly 192×192 and 512×512.
 
 ### 📲 PWA + Push notifications
 - Installable app on Android, iPhone and PC (manifest + service worker + offline page).
