@@ -2,6 +2,7 @@
 // Expects: $page_title (string), optional $use_leaflet (bool).
 $me = current_user();
 $unread = $me ? unread_notifications((int) $me['id']) : 0;
+run_reminders();
 
 $langSwitch = function (string $to): string {
     $qs = $_GET;
@@ -42,6 +43,7 @@ $langSwitch = function (string $to): string {
     <nav class="mainnav" id="mainnav">
       <a href="<?= e(url('index.php')) ?>"><?= e(t('nav_home')) ?></a>
       <a href="<?= e(url('complaints.php')) ?>"><?= e(t('nav_complaints')) ?></a>
+      <a href="<?= e(url('trees.php')) ?>">🌳 <?= e(t('nav_trees')) ?></a>
       <a href="<?= e(url('leaderboard.php')) ?>"><?= e(t('nav_leaderboard')) ?></a>
       <?php if ($me): ?>
         <a href="<?= e(url(role_home($me))) ?>" class="nav-strong"><?= e(t('nav_dashboard')) ?></a>

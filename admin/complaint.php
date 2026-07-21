@@ -66,6 +66,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flash_set('success', t('msg_resolved'));
         }
 
+    } elseif ($action === 'validate_fix' && $c['status'] === 'in_progress' && $c['after_photo'] && $c['handler_role'] === 'citizen') {
+        db()->prepare("UPDATE complaints SET status = 'resolved', resolved_at = NOW() WHERE id = ?")->execute([$id]);
+        log_event($id, (int) $me['id'], 'resolved', trim($_POST['note'] ?? '') ?: null);
+        award_points((int) $c['user_id'], 'complaint_resolved', $id);
+        notify((int) $c['user_id'], 'complaint_resolved', $id);
+        notify((int) $c['handler_id'], 'fix_validated', $id);
+        check_badges((int) $c['handler_id']);
+        flash_set('success', t('msg_fix_validated'));
+
+    } elseif ($action === 'reject_fix' && $c['status'] === 'in_progress' && $c['after_photo'] && $c['handler_role'] === 'citizen') {
+        if (mb_strlen($note) < 5) {
+            flash_set('error', t('err_reject_reason'));
+        } else {
+            db()->prepare('UPDATE complaints SET after_photo = NULL WHERE id = ?')->execute([$id]);
+            log_event($id, (int) $me['id'], 'fix_rejected', $note);
+            notify((int) $c['handler_id'], 'fix_rejected', $id);
+            flash_set('success', t('msg_fix_rejected'));
+        }
+
     } elseif ($action === 'close' && $c['status'] === 'resolved') {
         db()->prepare("UPDATE complaints SET status = 'closed', closed_at = NOW() WHERE id = ?")->execute([$id]);
         log_event($id, (int) $me['id'], 'closed', $note ?: null);
@@ -105,7 +124,7 @@ require __DIR__ . '/../includes/layout/header.php';
       <p class="muted"><?= e(t('reported_by')) ?> <strong><?= e($c['reporter_name']) ?></strong> (<?= e($c['reporter_email']) ?>)</p>
       <?php if ($c['handler_name']): ?>
       <p class="muted"><?= e(t('handled_by')) ?> <strong><?= e($c['handler_name']) ?></strong>
-        <span class="chip chip-sm"><?= e(t($c['handler_role'] === 'association' ? 'role_association' : 'role_admin')) ?></span></p>
+        <span class="chip chip-sm"><?= e(t('role_' . ($c['handler_role'] === 'admin' ? 'admin' : ($c['handler_role'] === 'association' ? 'association' : 'citizen')))) ?></span></p>
       <?php endif; ?>
     </div>
   </div>
@@ -156,7 +175,25 @@ require __DIR__ . '/../includes/layout/header.php';
       </div>
       <?php endif; ?>
 
-      <?php if (in_array($c['status'], ['published', 'in_progress'], true)): ?>
+      <?php $citizenFixPending = $c['status'] === 'in_progress' && $c['after_photo'] && $c['handler_role'] === 'citizen'; ?>
+      <?php if ($citizenFixPending): ?>
+      <div class="card card-pad action-card">
+        <h3>🕓 <?= e(t('adm_validate_title')) ?></h3>
+        <p class="muted"><?= e(t('adm_validate_sub', $c['handler_name'])) ?></p>
+        <form method="post" class="form"><?= csrf_field() ?><input type="hidden" name="action" value="validate_fix">
+          <button class="btn btn-primary btn-block">✅ <?= e(t('adm_validate_btn')) ?></button>
+        </form>
+        <details class="reopen-box">
+          <summary><?= e(t('adm_reject_fix')) ?></summary>
+          <form method="post" class="form"><?= csrf_field() ?><input type="hidden" name="action" value="reject_fix">
+            <textarea name="note" rows="3" required minlength="5" placeholder="<?= e(t('adm_reject_fix_ph')) ?>"></textarea>
+            <button class="btn btn-danger btn-block"><?= e(t('adm_reject_fix')) ?></button>
+          </form>
+        </details>
+      </div>
+      <?php endif; ?>
+
+      <?php if (in_array($c['status'], ['published', 'in_progress'], true) && !$citizenFixPending): ?>
       <div class="card card-pad action-card">
         <h3>✅ <?= e(t('adm_resolve_title')) ?></h3>
         <form method="post" enctype="multipart/form-data" class="form">

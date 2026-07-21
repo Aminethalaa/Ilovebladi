@@ -26,10 +26,29 @@ public leaderboards** for communes, wilayas, citizens and associations.
 - Start works, resolve with a mandatory **after photo**, close cases
 - Commune performance score /100 (70% resolution rate + 30% speed) and admin badges
 
-### Associations (الجمعيات)
-- Self-register, activated after super-admin verification
-- Take charge of published complaints in their wilaya, resolve with after-photos
-- Own points scale, badges and a dedicated leaderboard tab
+### Everyone can fix — البلدية، الجمعيات والمواطنون
+- **Volunteer citizens** can take charge of a published complaint, repair it and submit an
+  after-photo; the commune admin validates the fix before it counts. Volunteer points and
+  badges (مصلح متطوع، بطل الحي) reward them.
+- **Associations (الجمعيات)** self-register (activated after super-admin verification), take
+  charge of complaints in their wilaya and resolve directly with after-photos. Own points
+  scale, badges and a dedicated leaderboard tab.
+
+### Closing incentives
+- Confirming a fix pays a bigger bonus (+15) with a celebration message; volunteer/association
+  fixers get their reward when the case is confirmed closed.
+- If a complaint stays "resolved" for 3+ days without confirmation, the reporter automatically
+  receives a reminder (in-app + email + push) — no cron needed, it runs lazily on page views.
+- Closer badges (مؤكّد الإصلاح، غالق المشاكل) and commune/wilaya scores that weigh
+  confirmed-closed complaints higher than merely resolved ones.
+
+### Tree planting — غرس الأشجار 🌳
+- Commune admins and verified associations launch **planting campaigns** with a tree goal
+  (and optional deadline); a public progress bar tracks each campaign.
+- Citizens and associations log their planted trees with a photo, count and GPS position.
+- **Community verification**: a contribution counts once 2 members confirm it (or instantly
+  when the campaign creator / an admin confirms). 3 points per approved tree, planter badges
+  (غارس، صديق البيئة، حارس الغابة), and a total-trees counter on the landing page.
 
 ### Super admin
 - Global statistics console

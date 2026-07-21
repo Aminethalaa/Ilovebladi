@@ -1,7 +1,20 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/trees.php';
 
 $db = db();
+$treesTotal = trees_total();
+$activeCampaigns = [];
+try {
+    $activeCampaigns = $db->query("SELECT tc.id, tc.title, tc.goal,
+            cm.name_ar AS commune_ar, cm.name_fr AS commune_fr,
+            (SELECT COALESCE(SUM(tp.trees),0) FROM tree_plantings tp
+             WHERE tp.campaign_id = tc.id AND tp.status='approved') AS planted
+        FROM tree_campaigns tc JOIN communes cm ON cm.id = tc.commune_id
+        WHERE tc.status = 'active' ORDER BY tc.id DESC LIMIT 3")->fetchAll();
+} catch (Throwable $e) {
+    // tree tables not created yet
+}
 $S = $db->query("SELECT
     (SELECT COUNT(*) FROM complaints WHERE status NOT IN ('pending','rejected')) AS total,
     (SELECT COUNT(*) FROM complaints WHERE status IN ('resolved','closed')) AS resolved,
@@ -24,6 +37,7 @@ foreach ($cats as $c) {
 $topCommunes = $db->query("SELECT cm.name_ar, cm.name_fr, w.name_ar AS wilaya_ar, w.name_fr AS wilaya_fr,
         COUNT(*) AS published,
         SUM(x.status IN ('resolved','closed')) AS resolved,
+        SUM(x.status = 'closed') AS closed,
         AVG(CASE WHEN x.resolved_at IS NOT NULL THEN TIMESTAMPDIFF(HOUR, x.published_at, x.resolved_at)/24 END) AS avg_days
     FROM complaints x
     JOIN communes cm ON cm.id = x.commune_id
@@ -82,6 +96,30 @@ require __DIR__ . '/includes/layout/header.php';
   </div>
 </section>
 
+<section class="section trees-band">
+  <div class="container">
+    <h2 class="section-title">🌳 <?= e(t('home_trees_title')) ?></h2>
+    <p class="center muted trees-band-sub"><?= e(t('home_trees_sub')) ?></p>
+    <p class="center trees-total"><span class="stat-num" data-count="<?= $treesTotal ?>">0</span> <?= e(t('trees_planted')) ?></p>
+    <?php if ($activeCampaigns): ?>
+    <div class="grid-3">
+      <?php foreach ($activeCampaigns as $ac):
+          $pct = min(100, (int) round($ac['planted'] * 100 / max(1, (int) $ac['goal']))); ?>
+      <a class="card c-card" href="<?= e(url('tree-campaign.php?id=' . (int) $ac['id'])) ?>">
+        <div class="card-body">
+          <h3><?= e($ac['title']) ?></h3>
+          <p class="muted">📍 <?= e(lc($ac, 'commune')) ?></p>
+          <div class="tree-progress"><div class="tree-progress-fill" style="width:<?= $pct ?>%"></div></div>
+          <p class="tree-progress-nums"><strong><?= (int) $ac['planted'] ?></strong> / <?= (int) $ac['goal'] ?> 🌳</p>
+        </div>
+      </a>
+      <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+    <p class="center"><a class="btn btn-primary" href="<?= e(url('trees.php')) ?>"><?= e(t('home_trees_cta')) ?></a></p>
+  </div>
+</section>
+
 <section class="section section-alt">
   <div class="container">
     <h2 class="section-title"><?= e(t('home_how_title')) ?></h2>
@@ -102,7 +140,7 @@ require __DIR__ . '/includes/layout/header.php';
       <thead><tr><th>#</th><th><?= e(t('lb_commune')) ?></th><th><?= e(t('lb_resolved')) ?></th><th><?= e(t('lb_score')) ?></th></tr></thead>
       <tbody>
       <?php foreach ($topCommunes as $i => $tc):
-          $score = commune_score((int) $tc['published'], (int) $tc['resolved'], $tc['avg_days'] !== null ? (float) $tc['avg_days'] : null); ?>
+          $score = commune_score((int) $tc['published'], (int) $tc['resolved'], (int) $tc['closed'], $tc['avg_days'] !== null ? (float) $tc['avg_days'] : null); ?>
         <tr>
           <td class="rank"><?= ['🥇', '🥈', '🥉'][$i] ?? $i + 1 ?></td>
           <td><strong><?= e(lc($tc, 'name')) ?></strong> <span class="muted">— <?= e(lc($tc, 'wilaya')) ?></span></td>

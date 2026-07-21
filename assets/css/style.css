@@ -354,6 +354,39 @@ input[type='file'] { padding: 8px; background: var(--green-light); border-style:
 .quick { font-weight: 800; text-align: center; color: var(--green); transition: transform 0.1s; }
 .quick:hover { transform: translateY(-2px); }
 
+/* ---------- trees ---------- */
+.hero-trees {
+  background:
+    radial-gradient(1000px 480px at 85% -10%, rgba(200, 169, 81, 0.25), transparent 60%),
+    linear-gradient(135deg, #0b3d22, #14683c 60%, #1c8a50);
+  background-color: var(--green);
+}
+.tree-progress { background: var(--line); border-radius: 999px; height: 12px; overflow: hidden; margin-top: 10px; }
+.tree-progress-lg { height: 20px; }
+.tree-progress-fill {
+  background: linear-gradient(90deg, #1c8a50, var(--green));
+  height: 100%; border-radius: 999px; min-width: 4px;
+  transition: width 0.6s ease;
+}
+.tree-progress-nums { margin-top: 6px; font-size: 0.95rem; }
+.tree-big { font-size: 1.6rem; color: var(--green); }
+.trees-band { background: linear-gradient(180deg, #eef7f1, #fff); }
+.trees-band-sub { max-width: 640px; margin-inline: auto; }
+.trees-total { font-size: 1.1rem; margin-block: 12px; }
+.trees-total .stat-num { font-size: 2.6rem; }
+
+/* ---------- celebration ---------- */
+.flash-celebrate {
+  background: linear-gradient(120deg, #dcfce7, #fdf6e3, #dcfce7);
+  background-size: 220% 100%;
+  color: #14532d;
+  border: 2px solid var(--gold);
+  font-size: 1.05rem;
+  animation: celebrate-bg 2.2s ease infinite, celebrate-pop 0.5s ease;
+}
+@keyframes celebrate-bg { 0% {background-position: 0 0;} 50% {background-position: 100% 0;} 100% {background-position: 0 0;} }
+@keyframes celebrate-pop { 0% {transform: scale(0.96);} 60% {transform: scale(1.02);} 100% {transform: scale(1);} }
+
 /* ---------- PWA + push ---------- */
 .install-btn {
   position: fixed; bottom: 18px; inset-inline-end: 18px; z-index: 1200;

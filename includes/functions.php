@@ -146,12 +146,16 @@ function time_ago(string $dt): string
 const POINTS = [
     'complaint_approved' => 10, // reporter, complaint published
     'complaint_resolved' => 25, // reporter, complaint resolved
-    'fix_confirmed'      => 5,  // reporter confirms the fix
+    'fix_confirmed'      => 15, // reporter confirms the fix (closing bonus)
     'upvote_given'       => 2,  // voter
     'upvote_received'    => 1,  // reporter
     'assoc_take_charge'  => 5,  // association takes a complaint
     'assoc_fix'          => 10, // association submits a fix
     'assoc_fix_confirmed'=> 30, // association's fix confirmed/closed
+    'take_charge'        => 5,  // volunteer citizen takes a complaint
+    'citizen_fix'        => 10, // volunteer citizen submits a fix for validation
+    'citizen_fix_confirmed' => 25, // volunteer citizen's fix confirmed/closed
+    'tree_confirm_given' => 1,  // confirming someone's planted trees
 ];
 
 /** Citizen levels: [min_points, translation key, icon]. */
@@ -190,7 +194,11 @@ function next_level(int $points): ?array
 
 function award_points(int $userId, string $reason, ?int $complaintId = null): void
 {
-    $pts = POINTS[$reason] ?? 0;
+    award_points_custom($userId, POINTS[$reason] ?? 0, $reason, $complaintId);
+}
+
+function award_points_custom(int $userId, int $pts, string $reason, ?int $complaintId): void
+{
     if ($pts === 0) {
         return;
     }
@@ -213,28 +221,49 @@ function check_badges(int $userId): void
         return;
     }
 
+    $planted = 0;
+    try {
+        $q = db()->prepare("SELECT COALESCE(SUM(trees),0) t FROM tree_plantings WHERE user_id = ? AND status = 'approved'");
+        $q->execute([$userId]);
+        $planted = (int) $q->fetch()['t'];
+    } catch (Throwable $e) {
+        // tree tables not created yet
+    }
+    $treeBadges = [
+        'planter_1'   => $planted >= 1,
+        'planter_25'  => $planted >= 25,
+        'planter_100' => $planted >= 100,
+    ];
+
     $counts = [];
     if ($user['role'] === 'citizen') {
         $q = db()->prepare("SELECT
             (SELECT COUNT(*) FROM complaints WHERE user_id = ? AND status <> 'pending' AND status <> 'rejected') AS approved,
             (SELECT COUNT(*) FROM complaints WHERE user_id = ? AND status IN ('resolved','closed')) AS fixed,
-            (SELECT COUNT(*) FROM upvotes WHERE user_id = ?) AS votes");
-        $q->execute([$userId, $userId, $userId]);
+            (SELECT COUNT(*) FROM upvotes WHERE user_id = ?) AS votes,
+            (SELECT COUNT(*) FROM complaints WHERE handler_id = ? AND status IN ('resolved','closed')) AS volunteered,
+            (SELECT COUNT(*) FROM complaint_events ev JOIN complaints cx ON cx.id = ev.complaint_id
+             WHERE ev.event = 'closed' AND ev.user_id = ? AND cx.user_id = ?) AS confirmed");
+        $q->execute([$userId, $userId, $userId, $userId, $userId, $userId]);
         $c = $q->fetch();
-        $counts = [
+        $counts = $treeBadges + [
             'first_report' => $c['approved'] >= 1,
             'reporter_5'   => $c['approved'] >= 5,
             'reporter_20'  => $c['approved'] >= 20,
             'first_fixed'  => $c['fixed'] >= 1,
             'fixed_10'     => $c['fixed'] >= 10,
             'supporter_10' => $c['votes'] >= 10,
+            'volunteer_first_fix' => $c['volunteered'] >= 1,
+            'volunteer_fix_5'     => $c['volunteered'] >= 5,
+            'confirmer_1'  => $c['confirmed'] >= 1,
+            'confirmer_5'  => $c['confirmed'] >= 5,
         ];
     } elseif ($user['role'] === 'association') {
         $q = db()->prepare("SELECT COUNT(*) AS fixed FROM complaints
                             WHERE handler_id = ? AND status IN ('resolved','closed')");
         $q->execute([$userId]);
         $c = $q->fetch();
-        $counts = [
+        $counts = $treeBadges + [
             'assoc_first_fix' => $c['fixed'] >= 1,
             'assoc_fix_5'     => $c['fixed'] >= 5,
             'assoc_fix_20'    => $c['fixed'] >= 20,
@@ -277,19 +306,53 @@ function user_badges(int $userId): array
 /**
  * Commune performance score /100: 70% resolution rate + 30% speed
  * (full speed marks at <=3 days average, fading out by 30 days).
+ * Confirmed-closed complaints weigh full, resolved-but-unconfirmed 70%.
  */
-function commune_score(int $published, int $resolved, ?float $avgDays): int
+function commune_score(int $published, int $resolved, int $closed, ?float $avgDays): int
 {
     if ($published === 0) {
         return 0;
     }
-    $rate = $resolved / $published;
+    $rate = (0.7 * $resolved + 0.3 * $closed) / $published;
     $speed = 0.0;
     if ($resolved > 0) {
         $d = max(0.0, (float) $avgDays);
         $speed = $d <= 3 ? 1.0 : max(0.0, 1 - ($d - 3) / 27);
     }
     return (int) round($rate * 70 + $speed * 30);
+}
+
+/**
+ * Lazy reminder engine (shared hosting has no cron): at most once per hour,
+ * nudge reporters whose complaint has been 'resolved' for 3+ days without
+ * their confirmation. Triggered from the layout on normal page views.
+ */
+function run_reminders(): void
+{
+    try {
+        require_once BASE_PATH . '/includes/webpush.php';
+        push_tables(); // ensures the settings table exists
+        $st = db()->prepare("SELECT v FROM settings WHERE k = 'reminders_run'");
+        $st->execute();
+        $last = $st->fetch();
+        if ($last && (int) $last['v'] > time() - 3600) {
+            return;
+        }
+        db()->prepare("INSERT INTO settings (k, v) VALUES ('reminders_run', ?)
+                       ON DUPLICATE KEY UPDATE v = VALUES(v)")->execute([(string) time()]);
+        $st = db()->query("SELECT x.id, x.user_id FROM complaints x
+            WHERE x.status = 'resolved' AND x.resolved_at < NOW() - INTERVAL 3 DAY
+              AND NOT EXISTS (SELECT 1 FROM complaint_events ev
+                              WHERE ev.complaint_id = x.id AND ev.event = 'reminder'
+                                AND ev.created_at > x.resolved_at)
+            LIMIT 20");
+        foreach ($st->fetchAll() as $r) {
+            log_event((int) $r['id'], null, 'reminder', null);
+            notify((int) $r['user_id'], 'confirm_reminder', (int) $r['id']);
+        }
+    } catch (Throwable $e) {
+        // reminders must never break page rendering
+    }
 }
 
 // ---------------------------------------------------------------- events + notifications

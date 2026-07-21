@@ -29,8 +29,11 @@ require __DIR__ . '/../includes/layout/header.php';
   <?php if ($rows): ?>
   <div class="list">
     <?php foreach ($rows as $n): ?>
-    <a class="list-item <?= (int) $n['is_read'] === 0 ? 'unread' : '' ?>"
-       href="<?= $n['complaint_id'] ? e(url('complaint.php?id=' . (int) $n['complaint_id'])) : e(url('dashboard/profile.php')) ?>">
+    <?php
+    $nUrl = $n['complaint_id'] ? url('complaint.php?id=' . (int) $n['complaint_id'])
+        : (strpos($n['type'], 'tree_') === 0 ? url('trees.php') : url('dashboard/profile.php'));
+    ?>
+    <a class="list-item <?= (int) $n['is_read'] === 0 ? 'unread' : '' ?>" href="<?= e($nUrl) ?>">
       <div class="list-main">
         <strong><?= e(t('notif_' . $n['type'])) ?></strong>
         <?php if ($n['title']): ?><span class="muted">#<?= e($n['ref']) ?> — <?= e($n['title']) ?></span><?php endif; ?>

@@ -18,6 +18,7 @@ if ($tab === 'communes' || $tab === 'wilayas') {
     $rows = db()->query("SELECT g.name_ar, g.name_fr $extra,
             COUNT(*) AS published,
             SUM(x.status IN ('resolved','closed')) AS resolved,
+            SUM(x.status = 'closed') AS closed,
             AVG(CASE WHEN x.resolved_at IS NOT NULL THEN TIMESTAMPDIFF(HOUR, x.published_at, x.resolved_at)/24 END) AS avg_days
         FROM complaints x $nameJoin
         WHERE x.status NOT IN ('pending','rejected')
@@ -26,8 +27,8 @@ if ($tab === 'communes' || $tab === 'wilayas') {
                  SUM(x.status IN ('resolved','closed')) DESC
         LIMIT 50")->fetchAll();
     usort($rows, function ($a, $b) {
-        $sa = commune_score((int) $a['published'], (int) $a['resolved'], $a['avg_days'] !== null ? (float) $a['avg_days'] : null);
-        $sb = commune_score((int) $b['published'], (int) $b['resolved'], $b['avg_days'] !== null ? (float) $b['avg_days'] : null);
+        $sa = commune_score((int) $a['published'], (int) $a['resolved'], (int) $a['closed'], $a['avg_days'] !== null ? (float) $a['avg_days'] : null);
+        $sb = commune_score((int) $b['published'], (int) $b['resolved'], (int) $b['closed'], $b['avg_days'] !== null ? (float) $b['avg_days'] : null);
         return $sb <=> $sa;
     });
 } elseif ($tab === 'citizens') {
@@ -68,7 +69,7 @@ require __DIR__ . '/includes/layout/header.php';
       <th><?= e(t('lb_avg_days')) ?></th><th><?= e(t('lb_score')) ?></th></tr></thead>
     <tbody>
       <?php foreach ($rows as $i => $r):
-          $score = commune_score((int) $r['published'], (int) $r['resolved'], $r['avg_days'] !== null ? (float) $r['avg_days'] : null); ?>
+          $score = commune_score((int) $r['published'], (int) $r['resolved'], (int) $r['closed'], $r['avg_days'] !== null ? (float) $r['avg_days'] : null); ?>
       <tr>
         <td class="rank"><?= ['🥇', '🥈', '🥉'][$i] ?? $i + 1 ?></td>
         <td><strong><?= e(lc($r, 'name')) ?></strong>

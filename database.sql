@@ -6,7 +6,8 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS push_subscriptions, settings, user_badges, badges, points_log,
+DROP TABLE IF EXISTS tree_confirms, tree_plantings, tree_campaigns,
+    push_subscriptions, settings, user_badges, badges, points_log,
     notifications, upvotes, complaint_events, complaints, categories, users, communes, wilayas;
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -26,6 +27,46 @@ CREATE TABLE push_subscriptions (
   auth VARCHAR(64) NOT NULL,
   created_at DATETIME NOT NULL,
   KEY idx_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tree-planting campaigns (goals set by admins/associations, trees logged by
+-- citizens, approved by community confirmation)
+CREATE TABLE tree_campaigns (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  creator_id INT NOT NULL,
+  wilaya_id INT NOT NULL,
+  commune_id INT NOT NULL,
+  title VARCHAR(180) NOT NULL,
+  description TEXT NOT NULL,
+  goal INT NOT NULL,
+  ends_at DATE NULL,
+  status VARCHAR(10) NOT NULL DEFAULT 'active',
+  created_at DATETIME NOT NULL,
+  KEY idx_status (status),
+  KEY idx_commune (commune_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE tree_plantings (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  campaign_id INT NOT NULL,
+  user_id INT NOT NULL,
+  trees INT NOT NULL DEFAULT 1,
+  photo VARCHAR(120) NOT NULL,
+  lat DECIMAL(10,7) NULL,
+  lng DECIMAL(10,7) NULL,
+  note VARCHAR(300) NULL,
+  confirms INT NOT NULL DEFAULT 0,
+  status VARCHAR(12) NOT NULL DEFAULT 'pending',
+  created_at DATETIME NOT NULL,
+  KEY idx_campaign (campaign_id),
+  KEY idx_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE tree_confirms (
+  planting_id INT NOT NULL,
+  user_id INT NOT NULL,
+  created_at DATETIME NOT NULL,
+  PRIMARY KEY (planting_id, user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE wilayas (
@@ -193,7 +234,14 @@ INSERT INTO badges (code, icon, name_ar, name_fr, desc_ar, desc_fr, role, sort) 
 ('assoc_fix_5', '💪', 'فاعل خير', 'Acteur de terrain', '5 إصلاحات للجمعية', "5 réparations de l'association", 'association', 11),
 ('assoc_fix_20', '🏆', 'سند البلدية', 'Pilier de la commune', '20 إصلاحًا للجمعية', "20 réparations de l'association", 'association', 12),
 ('admin_fix_10', '🛠️', 'مشرف منجز', 'Admin efficace', '10 إصلاحات مسجلة', '10 réparations enregistrées', 'admin', 20),
-('admin_fix_50', '🎖️', 'خادم البلدية', 'Serviteur de la commune', '50 إصلاحًا مسجلاً', '50 réparations enregistrées', 'admin', 21);
+('admin_fix_50', '🎖️', 'خادم البلدية', 'Serviteur de la commune', '50 إصلاحًا مسجلاً', '50 réparations enregistrées', 'admin', 21),
+('volunteer_first_fix', '🔨', 'مصلح متطوع', 'Réparateur bénévole', 'أول إصلاح تطوعي مصادق عليه', 'Première réparation bénévole validée', 'citizen', 7),
+('volunteer_fix_5', '🦸', 'بطل الحي', 'Héros du quartier', '5 إصلاحات تطوعية', '5 réparations bénévoles', 'citizen', 8),
+('confirmer_1', '✅', 'مؤكّد الإصلاح', 'Confirmateur', 'أكدت أول إصلاح لبلاغك', 'Première réparation confirmée', 'citizen', 9),
+('confirmer_5', '🔏', 'غالق المشاكل', 'Clôtureur de problèmes', 'أكدت غلق 5 بلاغات', '5 signalements clôturés confirmés', 'citizen', 10),
+('planter_1', '🌱', 'غارس', 'Planteur', 'أول شجرة مغروسة معتمدة', 'Premier arbre planté approuvé', 'citizen', 30),
+('planter_25', '🌳', 'صديق البيئة', "Ami de l'environnement", '25 شجرة مغروسة', '25 arbres plantés', 'citizen', 31),
+('planter_100', '🌲', 'حارس الغابة', 'Gardien de la forêt', '100 شجرة مغروسة', '100 arbres plantés', 'citizen', 32);
 
 -- ------------------------------------------------------------
 -- Seed: the 58 wilayas of Algeria

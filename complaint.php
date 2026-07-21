@@ -40,16 +40,35 @@ if ($me) {
     $hasUpvoted = (bool) $q->fetch();
 }
 $isVerifiedAssoc = $me && $me['role'] === 'association' && (int) $me['is_verified'] === 1;
-$canTakeCharge = $isVerifiedAssoc && $c['status'] === 'published'
+$isVolunteerCitizen = $me && $me['role'] === 'citizen';
+$canTakeCharge = ($isVerifiedAssoc || $isVolunteerCitizen) && $c['status'] === 'published'
     && (int) $me['wilaya_id'] === (int) $c['wilaya_id'] && !$isOwner;
 $isHandler = $me && (int) ($c['handler_id'] ?? 0) === (int) $me['id'];
 $canAssocResolve = $isVerifiedAssoc && $isHandler && $c['status'] === 'in_progress';
+$canCitizenSubmitFix = $isVolunteerCitizen && $isHandler && $c['status'] === 'in_progress' && !$c['after_photo'];
+$fixAwaitingValidation = $c['status'] === 'in_progress' && $c['after_photo'] && $c['handler_role'] === 'citizen';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $me) {
     csrf_check();
     $action = $_POST['action'] ?? '';
 
-    if ($action === 'upvote' && $canUpvote && !$hasUpvoted) {
+    if ($action === 'citizen_submit_fix' && $canCitizenSubmitFix) {
+        $photo = upload_photo($_FILES['after_photo'] ?? [], $err);
+        if (!$photo) {
+            flash_set('error', t($err ?? 'err_photo_upload'));
+        } else {
+            db()->prepare('UPDATE complaints SET after_photo = ? WHERE id = ?')->execute([$photo, $id]);
+            log_event($id, (int) $me['id'], 'fix_submitted', trim($_POST['note'] ?? '') ?: null);
+            award_points((int) $me['id'], 'citizen_fix', $id);
+            $admins = db()->prepare("SELECT id FROM users WHERE role = 'admin' AND commune_id = ?");
+            $admins->execute([(int) $c['commune_id']]);
+            foreach ($admins->fetchAll() as $a) {
+                notify((int) $a['id'], 'fix_submitted', $id);
+            }
+            flash_set('success', t('msg_fix_submitted', POINTS['citizen_fix']));
+        }
+
+    } elseif ($action === 'upvote' && $canUpvote && !$hasUpvoted) {
         $ins = db()->prepare('INSERT IGNORE INTO upvotes (complaint_id, user_id, created_at) VALUES (?,?,NOW())');
         $ins->execute([$id, (int) $me['id']]);
         if ($ins->rowCount() > 0) {
@@ -64,14 +83,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $me) {
         db()->prepare("UPDATE complaints SET status = 'closed', closed_at = NOW() WHERE id = ?")->execute([$id]);
         log_event($id, (int) $me['id'], 'closed', null);
         award_points((int) $me['id'], 'fix_confirmed', $id);
-        if ($c['handler_id'] && $c['handler_role'] === 'association') {
-            award_points((int) $c['handler_id'], 'assoc_fix_confirmed', $id);
-            notify((int) $c['handler_id'], 'fix_confirmed', $id);
-        } elseif ($c['handler_id']) {
-            check_badges((int) $c['handler_id']);
+        if ($c['handler_id']) {
+            if ($c['handler_role'] === 'association') {
+                award_points((int) $c['handler_id'], 'assoc_fix_confirmed', $id);
+            } elseif ($c['handler_role'] === 'citizen') {
+                award_points((int) $c['handler_id'], 'citizen_fix_confirmed', $id);
+            } else {
+                check_badges((int) $c['handler_id']);
+            }
             notify((int) $c['handler_id'], 'fix_confirmed', $id);
         }
-        flash_set('success', t('msg_fix_confirmed'));
+        flash_set('celebrate', t('msg_fix_confirmed_celebrate', POINTS['fix_confirmed']));
 
     } elseif ($action === 'reopen' && $isOwner && $c['status'] === 'resolved') {
         $note = trim($_POST['note'] ?? '');
@@ -91,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $me) {
         $upd->execute([(int) $me['id'], $id]);
         if ($upd->rowCount() > 0) {
             log_event($id, (int) $me['id'], 'taken', null);
-            award_points((int) $me['id'], 'assoc_take_charge', $id);
+            award_points((int) $me['id'], $me['role'] === 'association' ? 'assoc_take_charge' : 'take_charge', $id);
             notify((int) $c['user_id'], 'complaint_in_progress', $id);
             flash_set('success', t('msg_taken'));
         }
@@ -137,7 +159,10 @@ $lvl = level_for((int) $c['reporter_points']);
       <p class="muted"><?= e(t('reported_by')) ?> <strong><?= e($c['reporter_name']) ?></strong> <span title="<?= e(t($lvl[1])) ?>"><?= $lvl[2] ?></span></p>
       <?php if ($c['handler_name']): ?>
       <p class="muted"><?= e(t('handled_by')) ?> <strong><?= e($c['handler_name']) ?></strong>
-        <span class="chip chip-sm"><?= e(t($c['handler_role'] === 'association' ? 'role_association' : 'role_admin')) ?></span></p>
+        <span class="chip chip-sm"><?= e(t('role_' . ($c['handler_role'] === 'admin' ? 'admin' : ($c['handler_role'] === 'association' ? 'association' : 'citizen')))) ?></span></p>
+      <?php endif; ?>
+      <?php if ($fixAwaitingValidation): ?>
+      <p><span class="badge st-pending">🕓 <?= e(t('fix_awaiting_validation')) ?></span></p>
       <?php endif; ?>
     </div>
     <div class="detail-actions">
@@ -200,9 +225,26 @@ $lvl = level_for((int) $c['reporter_points']);
       <?php if ($canTakeCharge): ?>
       <div class="card card-pad action-card">
         <h3>🤝 <?= e(t('take_title')) ?></h3>
-        <p class="muted"><?= e(t('take_sub')) ?></p>
+        <p class="muted"><?= e($isVolunteerCitizen ? t('take_sub_citizen') : t('take_sub')) ?></p>
         <form method="post"><?= csrf_field() ?><input type="hidden" name="action" value="take_charge">
           <button class="btn btn-primary btn-block"><?= e(t('take_btn')) ?></button>
+        </form>
+      </div>
+      <?php endif; ?>
+
+      <?php if ($canCitizenSubmitFix): ?>
+      <div class="card card-pad action-card">
+        <h3>🛠️ <?= e(t('citizen_fix_title')) ?></h3>
+        <p class="muted"><?= e(t('citizen_fix_sub')) ?></p>
+        <form method="post" enctype="multipart/form-data" class="form">
+          <?= csrf_field() ?><input type="hidden" name="action" value="citizen_submit_fix">
+          <label class="field"><span><?= e(t('after_photo')) ?></span>
+            <input type="file" name="after_photo" accept="image/jpeg,image/png,image/webp" capture="environment" required>
+          </label>
+          <label class="field"><span><?= e(t('note_optional')) ?></span>
+            <textarea name="note" rows="2" maxlength="500"></textarea>
+          </label>
+          <button class="btn btn-primary btn-block"><?= e(t('citizen_fix_btn')) ?></button>
         </form>
       </div>
       <?php endif; ?>

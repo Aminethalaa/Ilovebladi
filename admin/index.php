@@ -11,11 +11,12 @@ $st = db()->prepare("SELECT
     SUM(status = 'closed') AS closed,
     SUM(status NOT IN ('pending','rejected')) AS total_pub,
     SUM(status IN ('resolved','closed')) AS total_fixed,
+    SUM(status = 'in_progress' AND after_photo IS NOT NULL) AS awaiting_validation,
     AVG(CASE WHEN resolved_at IS NOT NULL THEN TIMESTAMPDIFF(HOUR, published_at, resolved_at)/24 END) AS avg_days
     FROM complaints WHERE commune_id = ?");
 $st->execute([$communeId]);
 $S = $st->fetch();
-$score = commune_score((int) $S['total_pub'], (int) $S['total_fixed'], $S['avg_days'] !== null ? (float) $S['avg_days'] : null);
+$score = commune_score((int) $S['total_pub'], (int) $S['total_fixed'], (int) $S['closed'], $S['avg_days'] !== null ? (float) $S['avg_days'] : null);
 
 $tab = $_GET['tab'] ?? 'pending';
 if (!in_array($tab, ['pending', 'published', 'in_progress', 'resolved'], true)) {
@@ -47,6 +48,11 @@ require __DIR__ . '/../includes/layout/header.php';
   </div>
 
   <?php require BASE_PATH . '/includes/layout/push-card.php'; ?>
+
+  <?php if ((int) $S['awaiting_validation'] > 0): ?>
+  <div class="flash flash-warn">🕓 <?= e(t('adm_awaiting_banner', (int) $S['awaiting_validation'])) ?>
+    <a href="?tab=in_progress"><?= e(t('sa_review_now')) ?></a></div>
+  <?php endif; ?>
 
   <div class="stat-row">
     <div class="stat-card stat-warn"><span class="stat-num"><?= (int) $S['pending'] ?></span><span class="stat-label"><?= e(t('st_pending')) ?></span></div>
@@ -83,7 +89,9 @@ require __DIR__ . '/../includes/layout/header.php';
         <strong><?= e($r['title']) ?></strong>
         <span class="muted">#<?= e($r['ref']) ?> · <?= e($r['icon']) ?> <?= e(lc($r, 'cat')) ?> · <?= e($r['reporter']) ?> · <?= e(time_ago($r['created_at'])) ?></span>
       </div>
-      <span class="list-side">👍 <?= (int) $r['upvotes'] ?><?php if ((int) $r['reopened'] === 1): ?> <span class="badge st-rejected"><?= e(t('reopened_flag')) ?></span><?php endif; ?></span>
+      <span class="list-side">👍 <?= (int) $r['upvotes'] ?>
+        <?php if ($r['status'] === 'in_progress' && $r['after_photo']): ?><span class="badge st-pending">🕓 <?= e(t('fix_awaiting_validation')) ?></span><?php endif; ?>
+        <?php if ((int) $r['reopened'] === 1): ?><span class="badge st-rejected"><?= e(t('reopened_flag')) ?></span><?php endif; ?></span>
     </a>
     <?php endforeach; ?>
   </div>
