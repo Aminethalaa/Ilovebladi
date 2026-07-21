@@ -339,6 +339,9 @@ return [
 
     // PWA + Push
     'pwa_install' => "Installer l'application",
+    'bn_trees' => 'Arbres',
+    'bn_report' => 'Signaler',
+    'bn_notify' => 'Notifier',
     'push_card_title' => 'Activez les notifications',
     'push_card_sub' => "Recevez une notification instantanée sur votre appareil quand votre signalement est publié ou réparé, ou pour les annonces de la commune — même application fermée.",
     'push_enable_btn' => 'Activer les notifications 🔔',

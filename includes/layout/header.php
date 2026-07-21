@@ -14,7 +14,7 @@ $langSwitch = function (string $to): string {
 <html lang="<?= lang() ?>" dir="<?= is_rtl() ? 'rtl' : 'ltr' ?>">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title><?= e($page_title ?? '') ?> — <?= e(app_name()) ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,15 +47,17 @@ $langSwitch = function (string $to): string {
       <a href="<?= e(url('leaderboard.php')) ?>"><?= e(t('nav_leaderboard')) ?></a>
       <?php if ($me): ?>
         <a href="<?= e(url(role_home($me))) ?>" class="nav-strong"><?= e(t('nav_dashboard')) ?></a>
-        <?php if (in_array($me['role'], ['citizen', 'association'], true)): ?>
-          <a class="nav-bell" href="<?= e(url('dashboard/notifications.php')) ?>" title="<?= e(t('nav_notifications')) ?>">
-            🔔<?php if ($unread): ?><span class="bell-count"><?= $unread > 9 ? '9+' : $unread ?></span><?php endif; ?>
-          </a>
-        <?php endif; ?>
         <a href="<?= e(url('logout.php')) ?>" class="nav-muted"><?= e(t('nav_logout')) ?></a>
       <?php else: ?>
         <a href="<?= e(url('login.php')) ?>"><?= e(t('nav_login')) ?></a>
         <a href="<?= e(url('register.php')) ?>" class="btn btn-sm btn-primary"><?= e(t('nav_register')) ?></a>
+      <?php endif; ?>
+    </nav>
+    <div class="topbar-side">
+      <?php if ($me): ?>
+      <a class="nav-bell" href="<?= e(url('dashboard/notifications.php')) ?>" title="<?= e(t('nav_notifications')) ?>">
+        🔔<?php if ($unread): ?><span class="bell-count"><?= $unread > 9 ? '9+' : $unread ?></span><?php endif; ?>
+      </a>
       <?php endif; ?>
       <span class="lang-switch">
         <?php if (lang() === 'ar'): ?>
@@ -64,8 +66,8 @@ $langSwitch = function (string $to): string {
           <a href="<?= $langSwitch('ar') ?>">عربية</a>
         <?php endif; ?>
       </span>
-    </nav>
-    <button class="nav-toggle" id="navToggle" aria-label="menu">☰</button>
+      <button class="nav-toggle" id="navToggle" aria-label="menu">☰</button>
+    </div>
   </div>
 </header>
 <main>
