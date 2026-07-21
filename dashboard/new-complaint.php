@@ -78,58 +78,66 @@ require __DIR__ . '/../includes/layout/header.php';
     <p class="muted"><?= e(t('new_complaint_sub')) ?></p></div>
   <?php foreach ($errors as $err): ?><div class="flash flash-error"><?= e($err) ?></div><?php endforeach; ?>
 
-  <form method="post" enctype="multipart/form-data" class="form card card-pad">
+  <form method="post" enctype="multipart/form-data" class="form card card-pad wizard"
+        data-back="<?= e(t('wz_back')) ?>" data-next="<?= e(t('wz_next')) ?>">
     <?= csrf_field() ?>
-    <label class="field"><span><?= e(t('nc_category')) ?></span></label>
-    <div class="cat-picker">
-      <?php foreach ($cats as $c): ?>
-      <label class="cat-opt <?= $old['category_id'] === (int) $c['id'] ? 'on' : '' ?>">
-        <input type="radio" name="category_id" value="<?= (int) $c['id'] ?>" <?= $old['category_id'] === (int) $c['id'] ? 'checked' : '' ?> required>
-        <span class="cat-ico"><?= e($c['icon']) ?></span><?= e(lc($c, 'name')) ?>
-      </label>
-      <?php endforeach; ?>
+
+    <div class="wizard-step" data-title="<?= e(t('nc_step_category')) ?>">
+      <label class="field"><span><?= e(t('nc_category')) ?></span></label>
+      <div class="cat-picker">
+        <?php foreach ($cats as $c): ?>
+        <label class="cat-opt <?= $old['category_id'] === (int) $c['id'] ? 'on' : '' ?>">
+          <input type="radio" name="category_id" value="<?= (int) $c['id'] ?>" <?= $old['category_id'] === (int) $c['id'] ? 'checked' : '' ?> required>
+          <span class="cat-ico"><?= e($c['icon']) ?></span><?= e(lc($c, 'name')) ?>
+        </label>
+        <?php endforeach; ?>
+      </div>
     </div>
 
-    <label class="field"><span><?= e(t('nc_title')) ?></span>
-      <input required name="title" minlength="5" maxlength="180" value="<?= e($old['title']) ?>" placeholder="<?= e(t('nc_title_ph')) ?>">
-    </label>
-    <label class="field"><span><?= e(t('description')) ?></span>
-      <textarea required name="description" rows="5" minlength="20" maxlength="4000" placeholder="<?= e(t('nc_desc_ph')) ?>"><?= e($old['description']) ?></textarea>
-    </label>
-
-    <div class="field-row">
-      <label class="field"><span><?= e(t('wilaya')) ?></span>
-        <select name="wilaya_id" id="wilayaSel" required data-communes-url="<?= e(url('api/communes.php')) ?>">
-          <?php foreach ($wilayas as $w): ?>
-          <option value="<?= (int) $w['id'] ?>" <?= (int) $old['wilaya_id'] === (int) $w['id'] ? 'selected' : '' ?>><?= (int) $w['id'] ?> — <?= e(lc($w, 'name')) ?></option>
-          <?php endforeach; ?>
-        </select>
+    <div class="wizard-step" data-title="<?= e(t('nc_step_details')) ?>">
+      <label class="field"><span><?= e(t('nc_title')) ?></span>
+        <input name="title" minlength="5" maxlength="180" value="<?= e($old['title']) ?>" placeholder="<?= e(t('nc_title_ph')) ?>" required>
       </label>
-      <label class="field"><span><?= e(t('commune')) ?></span>
-        <select name="commune_id" id="communeSel" required>
-          <?php foreach ($communes as $c): ?>
-          <option value="<?= (int) $c['id'] ?>" <?= (int) $old['commune_id'] === (int) $c['id'] ? 'selected' : '' ?>><?= e(lc($c, 'name')) ?></option>
-          <?php endforeach; ?>
-        </select>
+      <label class="field"><span><?= e(t('description')) ?></span>
+        <textarea name="description" rows="5" minlength="20" maxlength="4000" placeholder="<?= e(t('nc_desc_ph')) ?>" required><?= e($old['description']) ?></textarea>
       </label>
     </div>
 
-    <label class="field"><span><?= e(t('nc_location')) ?></span></label>
-    <div class="loc-bar">
-      <button type="button" class="btn btn-ghost" id="gpsBtn">📡 <?= e(t('nc_use_gps')) ?></button>
-      <span class="muted" id="gpsStatus"><?= e(t('nc_tap_map')) ?></span>
+    <div class="wizard-step" data-title="<?= e(t('nc_step_location')) ?>">
+      <div class="field-row">
+        <label class="field"><span><?= e(t('wilaya')) ?></span>
+          <select name="wilaya_id" id="wilayaSel" required data-communes-url="<?= e(url('api/communes.php')) ?>">
+            <?php foreach ($wilayas as $w): ?>
+            <option value="<?= (int) $w['id'] ?>" <?= (int) $old['wilaya_id'] === (int) $w['id'] ? 'selected' : '' ?>><?= (int) $w['id'] ?> — <?= e(lc($w, 'name')) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </label>
+        <label class="field"><span><?= e(t('commune')) ?></span>
+          <select name="commune_id" id="communeSel" required>
+            <?php foreach ($communes as $c): ?>
+            <option value="<?= (int) $c['id'] ?>" <?= (int) $old['commune_id'] === (int) $c['id'] ? 'selected' : '' ?>><?= e(lc($c, 'name')) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </label>
+      </div>
+      <label class="field"><span><?= e(t('nc_location')) ?></span></label>
+      <div class="loc-bar">
+        <button type="button" class="btn btn-ghost" id="gpsBtn">📡 <?= e(t('nc_use_gps')) ?></button>
+        <span class="muted" id="gpsStatus"><?= e(t('nc_tap_map')) ?></span>
+      </div>
+      <div id="pickMap" class="pick-map"></div>
+      <input type="hidden" name="lat" id="latInput" value="<?= e($old['lat']) ?>">
+      <input type="hidden" name="lng" id="lngInput" value="<?= e($old['lng']) ?>">
     </div>
-    <div id="pickMap" class="pick-map"></div>
-    <input type="hidden" name="lat" id="latInput" value="<?= e($old['lat']) ?>">
-    <input type="hidden" name="lng" id="lngInput" value="<?= e($old['lng']) ?>">
 
-    <label class="field"><span><?= e(t('nc_photo')) ?></span>
-      <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" capture="environment" required>
-      <span class="hint"><?= e(t('nc_photo_hint')) ?></span>
-    </label>
-
-    <p class="hint">ℹ️ <?= e(t('nc_review_note')) ?></p>
-    <button class="btn btn-primary btn-lg btn-block">📨 <?= e(t('nc_submit')) ?></button>
+    <div class="wizard-step" data-title="<?= e(t('nc_step_photo')) ?>">
+      <label class="field"><span><?= e(t('nc_photo')) ?></span>
+        <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" capture="environment" required>
+        <span class="hint"><?= e(t('nc_photo_hint')) ?></span>
+      </label>
+      <p class="hint">ℹ️ <?= e(t('nc_review_note')) ?></p>
+      <button class="btn btn-primary btn-lg btn-block wizard-submit">📨 <?= e(t('nc_submit')) ?></button>
+    </div>
   </form>
 </div>
 <script>
@@ -140,6 +148,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var start = [36.75, 3.06], zoom = 6;
   if (latI.value && lngI.value) { start = [parseFloat(latI.value), parseFloat(lngI.value)]; zoom = 15; }
   var map = L.map('pickMap').setView(start, zoom);
+  (window.Baladiyati = window.Baladiyati || {}).maps = window.Baladiyati.maps || [];
+  window.Baladiyati.maps.push(map);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '© OpenStreetMap'}).addTo(map);
   var marker = null;
   function setPoint(lat, lng, pan) {

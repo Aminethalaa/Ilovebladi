@@ -39,6 +39,7 @@ require __DIR__ . '/../includes/layout/header.php';
     <a class="card card-pad quick" href="<?= e(url('superadmin/complaints.php')) ?>">📋 <?= e(t('sa_all_complaints')) ?></a>
     <a class="card card-pad quick" href="<?= e(url('superadmin/admins.php')) ?>">🏛️ <?= e(t('sa_manage_admins')) ?></a>
     <a class="card card-pad quick" href="<?= e(url('superadmin/users.php')) ?>">👥 <?= e(t('sa_manage_users')) ?></a>
+    <a class="card card-pad quick" href="<?= e(url('superadmin/add-association.php')) ?>">➕🤝 <?= e(t('sa_add_assoc')) ?></a>
     <a class="card card-pad quick" href="<?= e(url('superadmin/categories.php')) ?>">🏷️ <?= e(t('sa_manage_categories')) ?></a>
     <a class="card card-pad quick" href="<?= e(url('superadmin/communes.php')) ?>">🗺️ <?= e(t('sa_manage_communes')) ?></a>
     <a class="card card-pad quick" href="<?= e(url('admin/notify.php')) ?>">📣 <?= e(t('notify_page_title')) ?></a>

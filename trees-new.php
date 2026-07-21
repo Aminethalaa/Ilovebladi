@@ -69,42 +69,48 @@ require __DIR__ . '/includes/layout/header.php';
     <p class="muted"><?= e(t('trees_new_sub')) ?></p></div>
   <?php foreach ($errors as $err): ?><div class="flash flash-error"><?= e($err) ?></div><?php endforeach; ?>
 
-  <form method="post" class="form card card-pad">
+  <form method="post" class="form card card-pad wizard" data-back="<?= e(t('wz_back')) ?>" data-next="<?= e(t('wz_next')) ?>">
     <?= csrf_field() ?>
-    <label class="field"><span><?= e(t('nc_title')) ?></span>
-      <input required name="title" minlength="5" maxlength="180" value="<?= e($old['title']) ?>" placeholder="<?= e(t('trees_title_ph')) ?>">
-    </label>
-    <label class="field"><span><?= e(t('description')) ?></span>
-      <textarea required name="description" rows="4" minlength="20" maxlength="2000" placeholder="<?= e(t('trees_desc_ph')) ?>"><?= e($old['description']) ?></textarea>
-    </label>
-    <div class="field-row">
-      <label class="field"><span>🎯 <?= e(t('trees_goal')) ?></span>
-        <input required type="number" name="goal" min="5" max="100000" value="<?= (int) $old['goal'] ?>">
+    <div class="wizard-step" data-title="<?= e(t('nc_step_details')) ?>">
+      <label class="field"><span><?= e(t('nc_title')) ?></span>
+        <input required name="title" minlength="5" maxlength="180" value="<?= e($old['title']) ?>" placeholder="<?= e(t('trees_title_ph')) ?>">
       </label>
-      <label class="field"><span>⏳ <?= e(t('trees_deadline')) ?></span>
-        <input type="date" name="ends_at" value="<?= e($old['ends_at']) ?>">
+      <label class="field"><span><?= e(t('description')) ?></span>
+        <textarea required name="description" rows="4" minlength="20" maxlength="2000" placeholder="<?= e(t('trees_desc_ph')) ?>"><?= e($old['description']) ?></textarea>
       </label>
     </div>
-    <div class="field-row">
-      <label class="field"><span><?= e(t('wilaya')) ?></span>
-        <select id="wilayaSel" data-communes-url="<?= e(url('api/communes.php')) ?>" <?= $me['role'] === 'admin' ? 'disabled' : '' ?>>
-          <?php foreach ($wilayas as $w): ?>
-          <option value="<?= (int) $w['id'] ?>" <?= (int) $old['wilaya_id'] === (int) $w['id'] ? 'selected' : '' ?>><?= (int) $w['id'] ?> — <?= e(lc($w, 'name')) ?></option>
-          <?php endforeach; ?>
-        </select>
-      </label>
-      <label class="field"><span><?= e(t('commune')) ?></span>
-        <select name="commune_id" id="communeSel" required <?= $me['role'] === 'admin' ? 'disabled' : '' ?>>
-          <?php foreach ($communes as $c): ?>
-          <option value="<?= (int) $c['id'] ?>" <?= (int) $old['commune_id'] === (int) $c['id'] ? 'selected' : '' ?>><?= e(lc($c, 'name')) ?></option>
-          <?php endforeach; ?>
-        </select>
-        <?php if ($me['role'] === 'admin'): ?>
-        <input type="hidden" name="commune_id" value="<?= (int) $me['commune_id'] ?>">
-        <?php endif; ?>
-      </label>
+    <div class="wizard-step" data-title="<?= e(t('trees_step_goal')) ?>">
+      <div class="field-row">
+        <label class="field"><span>🎯 <?= e(t('trees_goal')) ?></span>
+          <input required type="number" name="goal" min="5" max="100000" value="<?= (int) $old['goal'] ?>">
+        </label>
+        <label class="field"><span>⏳ <?= e(t('trees_deadline')) ?></span>
+          <input type="date" name="ends_at" value="<?= e($old['ends_at']) ?>">
+        </label>
+      </div>
     </div>
-    <button class="btn btn-primary btn-lg btn-block">🌱 <?= e(t('trees_create_btn')) ?></button>
+    <div class="wizard-step" data-title="<?= e(t('nc_step_location')) ?>">
+      <div class="field-row">
+        <label class="field"><span><?= e(t('wilaya')) ?></span>
+          <select id="wilayaSel" data-communes-url="<?= e(url('api/communes.php')) ?>" <?= $me['role'] === 'admin' ? 'disabled' : '' ?>>
+            <?php foreach ($wilayas as $w): ?>
+            <option value="<?= (int) $w['id'] ?>" <?= (int) $old['wilaya_id'] === (int) $w['id'] ? 'selected' : '' ?>><?= (int) $w['id'] ?> — <?= e(lc($w, 'name')) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </label>
+        <label class="field"><span><?= e(t('commune')) ?></span>
+          <select name="commune_id" id="communeSel" required <?= $me['role'] === 'admin' ? 'disabled' : '' ?>>
+            <?php foreach ($communes as $c): ?>
+            <option value="<?= (int) $c['id'] ?>" <?= (int) $old['commune_id'] === (int) $c['id'] ? 'selected' : '' ?>><?= e(lc($c, 'name')) ?></option>
+            <?php endforeach; ?>
+          </select>
+          <?php if ($me['role'] === 'admin'): ?>
+          <input type="hidden" name="commune_id" value="<?= (int) $me['commune_id'] ?>">
+          <?php endif; ?>
+        </label>
+      </div>
+      <button class="btn btn-primary btn-lg btn-block wizard-submit">🌱 <?= e(t('trees_create_btn')) ?></button>
+    </div>
   </form>
 </div>
 <?php require __DIR__ . '/includes/layout/footer.php'; ?>

@@ -63,21 +63,21 @@ if ($hexOk($cPrimary) || $hexOk($cAccent) || $hexOk($cGold)): ?>
       <span class="brand-name"><?= e(app_name()) ?></span>
     </a>
     <nav class="mainnav" id="mainnav">
-      <a href="<?= e(url('index.php')) ?>"><?= e(t('nav_home')) ?></a>
+      <a href="<?= e(url('index.php')) ?>"><span class="nav-ico">🏠</span><?= e(t('nav_home')) ?></a>
       <?php if (module_on('complaints')): ?>
-      <a href="<?= e(url('complaints.php')) ?>"><?= e(t('nav_complaints')) ?></a>
+      <a href="<?= e(url('complaints.php')) ?>"><span class="nav-ico">🗺️</span><?= e(t('nav_complaints')) ?></a>
       <?php endif; ?>
       <?php if (module_on('trees')): ?>
-      <a href="<?= e(url('trees.php')) ?>">🌳 <?= e(t('nav_trees')) ?></a>
+      <a href="<?= e(url('trees.php')) ?>"><span class="nav-ico">🌳</span><?= e(t('nav_trees')) ?></a>
       <?php endif; ?>
       <?php if (module_on('associations')): ?>
-      <a href="<?= e(url('associations.php')) ?>"><?= e(t('nav_directory')) ?></a>
+      <a href="<?= e(url('associations.php')) ?>"><span class="nav-ico">🤝</span><?= e(t('nav_directory')) ?></a>
       <?php endif; ?>
       <?php if (module_on('leaderboard')): ?>
-      <a href="<?= e(url('leaderboard.php')) ?>"><?= e(t('nav_leaderboard')) ?></a>
+      <a href="<?= e(url('leaderboard.php')) ?>"><span class="nav-ico">🏆</span><?= e(t('nav_leaderboard')) ?></a>
       <?php endif; ?>
       <?php if ($me): ?>
-        <a href="<?= e(url(role_home($me))) ?>" class="nav-strong"><?= e(t('nav_dashboard')) ?></a>
+        <a href="<?= e(url(role_home($me))) ?>" class="nav-strong"><span class="nav-ico">👤</span><?= e(t('nav_dashboard')) ?></a>
         <a href="<?= e(url('logout.php')) ?>" class="nav-muted"><?= e(t('nav_logout')) ?></a>
       <?php else: ?>
         <a href="<?= e(url('login.php')) ?>"><?= e(t('nav_login')) ?></a>

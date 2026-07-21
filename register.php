@@ -71,59 +71,71 @@ require __DIR__ . '/includes/layout/header.php';
     <h1 class="auth-title"><?= e(t('register_title')) ?></h1>
     <p class="muted center"><?= e(t('register_sub')) ?></p>
     <?php foreach ($errors as $err): ?><div class="flash flash-error"><?= e($err) ?></div><?php endforeach; ?>
-    <form method="post" class="form">
+    <form method="post" class="form wizard" data-back="<?= e(t('wz_back')) ?>" data-next="<?= e(t('wz_next')) ?>">
       <?= csrf_field() ?>
       <?php if (module_on('associations')): ?>
-      <div class="type-toggle">
-        <label class="type-opt <?= $old['type'] === 'citizen' ? 'on' : '' ?>">
-          <input type="radio" name="type" value="citizen" <?= $old['type'] === 'citizen' ? 'checked' : '' ?>>
-          🧑 <?= e(t('reg_type_citizen')) ?>
-        </label>
-        <label class="type-opt <?= $old['type'] === 'association' ? 'on' : '' ?>">
-          <input type="radio" name="type" value="association" <?= $old['type'] === 'association' ? 'checked' : '' ?>>
-          🤝 <?= e(t('reg_type_assoc')) ?>
-        </label>
+      <div class="wizard-step" data-title="<?= e(t('reg_step_type')) ?>">
+        <label class="field"><span><?= e(t('reg_type_q')) ?></span></label>
+        <div class="type-toggle">
+          <label class="type-opt <?= $old['type'] === 'citizen' ? 'on' : '' ?>">
+            <input type="radio" name="type" value="citizen" <?= $old['type'] === 'citizen' ? 'checked' : '' ?>>
+            🧑 <?= e(t('reg_type_citizen')) ?>
+          </label>
+          <label class="type-opt <?= $old['type'] === 'association' ? 'on' : '' ?>">
+            <input type="radio" name="type" value="association" <?= $old['type'] === 'association' ? 'checked' : '' ?>>
+            🤝 <?= e(t('reg_type_assoc')) ?>
+          </label>
+        </div>
       </div>
       <?php else: ?>
       <input type="hidden" name="type" value="citizen">
       <?php endif; ?>
-      <label class="field"><span data-label-citizen="<?= e(t('reg_name')) ?>" data-label-assoc="<?= e(t('reg_assoc_name')) ?>" id="nameLabel"><?= e($old['type'] === 'association' ? t('reg_assoc_name') : t('reg_name')) ?></span>
-        <input required name="name" value="<?= e($old['name']) ?>" maxlength="120">
-      </label>
-      <label class="field"><span><?= e(t('reg_email')) ?></span>
-        <input required type="email" name="email" value="<?= e($old['email']) ?>" maxlength="190">
-      </label>
-      <div class="field-row">
-        <label class="field"><span><?= e(t('wilaya')) ?></span>
-          <select name="wilaya_id" id="wilayaSel" required data-communes-url="<?= e(url('api/communes.php')) ?>">
-            <option value=""><?= e(t('choose')) ?></option>
-            <?php foreach ($wilayas as $w): ?>
-            <option value="<?= (int) $w['id'] ?>" <?= (int) $old['wilaya_id'] === (int) $w['id'] ? 'selected' : '' ?>><?= (int) $w['id'] ?> — <?= e(lc($w, 'name')) ?></option>
-            <?php endforeach; ?>
-          </select>
+
+      <div class="wizard-step" data-title="<?= e(t('reg_step_identity')) ?>">
+        <label class="field"><span data-label-citizen="<?= e(t('reg_name')) ?>" data-label-assoc="<?= e(t('reg_assoc_name')) ?>" id="nameLabel"><?= e($old['type'] === 'association' ? t('reg_assoc_name') : t('reg_name')) ?></span>
+          <input required name="name" value="<?= e($old['name']) ?>" maxlength="120">
         </label>
-        <label class="field"><span><?= e(t('commune')) ?></span>
-          <select name="commune_id" id="communeSel" required>
-            <option value=""><?= e(t('choose')) ?></option>
-            <?php foreach ($communes as $c): ?>
-            <option value="<?= (int) $c['id'] ?>" <?= (int) $old['commune_id'] === (int) $c['id'] ? 'selected' : '' ?>><?= e(lc($c, 'name')) ?></option>
-            <?php endforeach; ?>
-          </select>
+        <label class="field"><span><?= e(t('reg_email')) ?></span>
+          <input required type="email" name="email" value="<?= e($old['email']) ?>" maxlength="190">
         </label>
+        <label class="field assoc-only" <?= $old['type'] !== 'association' ? 'hidden' : '' ?>><span><?= e(t('reg_about')) ?></span>
+          <textarea name="about" rows="3" maxlength="600"><?= e($old['about']) ?></textarea>
+        </label>
+        <p class="hint assoc-only" <?= $old['type'] !== 'association' ? 'hidden' : '' ?>>ℹ️ <?= e(t('reg_assoc_note')) ?></p>
       </div>
-      <label class="field assoc-only" <?= $old['type'] !== 'association' ? 'hidden' : '' ?>><span><?= e(t('reg_about')) ?></span>
-        <textarea name="about" rows="3" maxlength="600"><?= e($old['about']) ?></textarea>
-      </label>
-      <div class="field-row">
-        <label class="field"><span><?= e(t('reg_password')) ?></span>
-          <input required type="password" name="password" minlength="8">
-        </label>
-        <label class="field"><span><?= e(t('reg_password2')) ?></span>
-          <input required type="password" name="password2" minlength="8">
-        </label>
+
+      <div class="wizard-step" data-title="<?= e(t('reg_step_location')) ?>">
+        <div class="field-row">
+          <label class="field"><span><?= e(t('wilaya')) ?></span>
+            <select name="wilaya_id" id="wilayaSel" required data-communes-url="<?= e(url('api/communes.php')) ?>">
+              <option value=""><?= e(t('choose')) ?></option>
+              <?php foreach ($wilayas as $w): ?>
+              <option value="<?= (int) $w['id'] ?>" <?= (int) $old['wilaya_id'] === (int) $w['id'] ? 'selected' : '' ?>><?= (int) $w['id'] ?> — <?= e(lc($w, 'name')) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </label>
+          <label class="field"><span><?= e(t('commune')) ?></span>
+            <select name="commune_id" id="communeSel" required>
+              <option value=""><?= e(t('choose')) ?></option>
+              <?php foreach ($communes as $c): ?>
+              <option value="<?= (int) $c['id'] ?>" <?= (int) $old['commune_id'] === (int) $c['id'] ? 'selected' : '' ?>><?= e(lc($c, 'name')) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </label>
+        </div>
       </div>
-      <p class="hint assoc-only" <?= $old['type'] !== 'association' ? 'hidden' : '' ?>>ℹ️ <?= e(t('reg_assoc_note')) ?></p>
-      <button class="btn btn-primary btn-lg btn-block"><?= e(t('nav_register')) ?></button>
+
+      <div class="wizard-step" data-title="<?= e(t('reg_step_password')) ?>">
+        <div class="field-row">
+          <label class="field"><span><?= e(t('reg_password')) ?></span>
+            <input required type="password" name="password" minlength="8">
+          </label>
+          <label class="field"><span><?= e(t('reg_password2')) ?></span>
+            <input required type="password" name="password2" minlength="8">
+          </label>
+        </div>
+        <button class="btn btn-primary btn-lg btn-block wizard-submit"><?= e(t('nav_register')) ?></button>
+      </div>
     </form>
     <p class="center muted"><?= e(t('have_account')) ?> <a href="<?= e(url('login.php')) ?>"><?= e(t('nav_login')) ?></a></p>
   </div>

@@ -44,7 +44,10 @@ require __DIR__ . '/../includes/layout/header.php';
 ?>
 <div class="container page">
   <p><a class="muted" href="<?= e(url('superadmin/index.php')) ?>">← <?= e(t('back')) ?></a></p>
-  <div class="page-head"><h1>👥 <?= e(t('sa_manage_users')) ?></h1></div>
+  <div class="page-head">
+    <h1>👥 <?= e(t('sa_manage_users')) ?></h1>
+    <a class="btn btn-primary" href="<?= e(url('superadmin/add-association.php')) ?>">➕🤝 <?= e(t('sa_add_assoc')) ?></a>
+  </div>
 
   <nav class="tabs">
     <a class="<?= $fRole === '' ? 'on' : '' ?>" href="?"><?= e(t('sa_all_users')) ?></a>

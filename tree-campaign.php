@@ -129,27 +129,32 @@ require __DIR__ . '/includes/layout/header.php';
   <div class="card card-pad action-card">
     <h3>🌱 <?= e(t('trees_participate_title')) ?></h3>
     <p class="muted"><?= e(t('trees_participate_sub', TREE_CONFIRMS_NEEDED)) ?></p>
-    <form method="post" enctype="multipart/form-data" class="form">
+    <form method="post" enctype="multipart/form-data" class="form wizard"
+          data-back="<?= e(t('wz_back')) ?>" data-next="<?= e(t('wz_next')) ?>">
       <?= csrf_field() ?><input type="hidden" name="action" value="plant">
-      <div class="field-row">
-        <label class="field"><span><?= e(t('trees_count')) ?></span>
-          <input required type="number" name="trees" min="1" max="50" value="1">
-        </label>
-        <label class="field"><span><?= e(t('trees_photo')) ?></span>
-          <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" capture="environment" required>
-        </label>
+      <div class="wizard-step" data-title="<?= e(t('trees_step_count')) ?>">
+        <div class="field-row">
+          <label class="field"><span><?= e(t('trees_count')) ?></span>
+            <input required type="number" name="trees" min="1" max="50" value="1">
+          </label>
+          <label class="field"><span><?= e(t('trees_photo')) ?></span>
+            <input type="file" name="photo" accept="image/jpeg,image/png,image/webp" capture="environment" required>
+          </label>
+        </div>
       </div>
-      <label class="field"><span><?= e(t('nc_location')) ?> — <?= e(t('optional')) ?></span></label>
-      <div class="loc-bar">
-        <button type="button" class="btn btn-ghost" id="gpsBtn">📡 <?= e(t('nc_use_gps')) ?></button>
-        <span class="muted" id="gpsStatus"><?= e(t('nc_tap_map')) ?></span>
+      <div class="wizard-step" data-title="<?= e(t('nc_step_location')) ?>">
+        <label class="field"><span><?= e(t('nc_location')) ?> — <?= e(t('optional')) ?></span></label>
+        <div class="loc-bar">
+          <button type="button" class="btn btn-ghost" id="gpsBtn">📡 <?= e(t('nc_use_gps')) ?></button>
+          <span class="muted" id="gpsStatus"><?= e(t('nc_tap_map')) ?></span>
+        </div>
+        <div id="pickMap" class="pick-map"></div>
+        <input type="hidden" name="lat" id="latInput"><input type="hidden" name="lng" id="lngInput">
+        <label class="field"><span><?= e(t('note_optional')) ?></span>
+          <input name="note" maxlength="300">
+        </label>
+        <button class="btn btn-primary btn-lg btn-block wizard-submit">🌳 <?= e(t('trees_submit_btn')) ?></button>
       </div>
-      <div id="pickMap" class="pick-map"></div>
-      <input type="hidden" name="lat" id="latInput"><input type="hidden" name="lng" id="lngInput">
-      <label class="field"><span><?= e(t('note_optional')) ?></span>
-        <input name="note" maxlength="300">
-      </label>
-      <button class="btn btn-primary btn-lg btn-block">🌳 <?= e(t('trees_submit_btn')) ?></button>
     </form>
   </div>
   <?php elseif (!$me): ?>
@@ -196,6 +201,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var latI = document.getElementById('latInput'), lngI = document.getElementById('lngInput');
   var status = document.getElementById('gpsStatus');
   var map = L.map(el).setView([36.75, 3.06], 6);
+  (window.Baladiyati = window.Baladiyati || {}).maps = window.Baladiyati.maps || [];
+  window.Baladiyati.maps.push(map);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '© OpenStreetMap'}).addTo(map);
   var marker = null;
   function setPoint(lat, lng, pan) {

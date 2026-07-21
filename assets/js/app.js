@@ -147,4 +147,111 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+
+  // ---------- multi-step wizard (progressive enhancement) ----------
+  document.querySelectorAll('form.wizard').forEach(function (form) {
+    var steps = Array.prototype.slice.call(form.querySelectorAll('.wizard-step'));
+    if (steps.length < 2) return;
+    var current = 0;
+    form.classList.add('wizard-on');
+
+    var prog = document.createElement('div');
+    prog.className = 'wizard-progress';
+    steps.forEach(function (s, i) {
+      var dot = document.createElement('div');
+      dot.className = 'wizard-dot';
+      dot.innerHTML = '<span class="wd-num">' + (i + 1) + '</span>'
+        + '<span class="wd-label">' + (s.dataset.title || '') + '</span>';
+      prog.appendChild(dot);
+    });
+    form.insertBefore(prog, form.firstChild);
+
+    var nav = document.createElement('div');
+    nav.className = 'wizard-nav';
+    var back = document.createElement('button');
+    back.type = 'button'; back.className = 'btn btn-ghost wizard-back';
+    back.innerHTML = '<span class="wz-ar">→</span> ' + (form.dataset.back || 'Back');
+    var next = document.createElement('button');
+    next.type = 'button'; next.className = 'btn btn-primary wizard-next';
+    next.innerHTML = (form.dataset.next || 'Next') + ' <span class="wz-ar">←</span>';
+    nav.appendChild(back); nav.appendChild(next);
+    form.appendChild(nav);
+
+    function announceMaps() {
+      var maps = (window.Baladiyati && window.Baladiyati.maps) || [];
+      maps.forEach(function (m) { setTimeout(function () { try { m.invalidateSize(); } catch (e) {} }, 60); });
+    }
+
+    function show(idx, dir, scroll) {
+      steps[current].classList.remove('active');
+      steps.forEach(function (s) { s.hidden = true; });
+      current = idx;
+      var s = steps[current];
+      s.hidden = false;
+      s.classList.remove('wz-anim');
+      void s.offsetWidth;
+      s.classList.add('active', 'wz-anim');
+      prog.querySelectorAll('.wizard-dot').forEach(function (d, i) {
+        d.classList.toggle('done', i < current);
+        d.classList.toggle('on', i === current);
+      });
+      back.style.visibility = current === 0 ? 'hidden' : 'visible';
+      var last = current === steps.length - 1;
+      next.hidden = last;
+      form.querySelectorAll('.wizard-submit').forEach(function (b) { b.hidden = !last; });
+      announceMaps();
+      if (scroll) {
+        var top = form.getBoundingClientRect().top + window.pageYOffset - 74;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      }
+    }
+
+    function validStep() {
+      var inputs = steps[current].querySelectorAll('input, select, textarea');
+      for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i].disabled || inputs[i].type === 'hidden') continue;
+        if (!inputs[i].checkValidity()) { inputs[i].reportValidity(); return false; }
+      }
+      return true;
+    }
+
+    next.addEventListener('click', function () {
+      if (validStep()) show(Math.min(current + 1, steps.length - 1), 1, true);
+    });
+    back.addEventListener('click', function () { show(Math.max(current - 1, 0), -1, true); });
+    // Enter in a text field advances instead of submitting early
+    form.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && current < steps.length - 1) {
+        e.preventDefault();
+        if (validStep()) show(current + 1, 1, true);
+      }
+    });
+
+    steps.forEach(function (s, i) { s.hidden = i !== 0; });
+    show(0, 1, false);
+  });
+
+  // ---------- active nav highlighting ----------
+  var here = location.pathname.split('/').pop() || 'index.php';
+  document.querySelectorAll('.mainnav a').forEach(function (a) {
+    var href = (a.getAttribute('href') || '').split('/').pop().split('?')[0];
+    if (href && href === here) a.classList.add('active');
+  });
+
+  // ---------- scroll reveal ----------
+  if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var reveal = document.querySelectorAll('.section .card, .stat-card, .step, .grid-3 > *, .list > .list-item, .cat-bar, .table-wrap');
+    var ro = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        ro.unobserve(en.target);
+        en.target.classList.add('revealed');
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    reveal.forEach(function (el, i) {
+      el.classList.add('will-reveal');
+      el.style.transitionDelay = Math.min(i % 8, 6) * 45 + 'ms';
+      ro.observe(el);
+    });
+  }
 });
