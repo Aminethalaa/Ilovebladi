@@ -63,8 +63,8 @@ require __DIR__ . '/includes/layout/header.php';
 <section class="hero">
   <div class="container hero-inner">
     <div class="hero-text">
-      <h1><?= e(t('hero_h1')) ?></h1>
-      <p class="hero-sub"><?= e(t('hero_sub')) ?></p>
+      <h1><?= e(site_text('hero_title', 'hero_h1')) ?></h1>
+      <p class="hero-sub"><?= e(site_text('hero_sub', 'hero_sub')) ?></p>
       <div class="hero-cta">
         <a class="btn btn-primary btn-lg" href="<?= e(url($me ? 'dashboard/new-complaint.php' : 'register.php')) ?>">📣 <?= e(t('hero_cta_report')) ?></a>
         <a class="btn btn-ghost btn-lg" href="<?= e(url('complaints.php')) ?>">🗺️ <?= e(t('hero_cta_browse')) ?></a>

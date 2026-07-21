@@ -2,8 +2,23 @@
 <footer class="footer">
   <div class="container footer-inner">
     <div>
-      <div class="brand"><span class="brand-mark">★</span> <?= e(app_name()) ?></div>
-      <p class="footer-tag"><?= e(t('footer_tagline')) ?></p>
+      <div class="brand">
+        <?php if (site_logo_url()): ?><img class="brand-logo" src="<?= e(site_logo_url()) ?>" alt="">
+        <?php else: ?><span class="brand-mark">★</span><?php endif; ?>
+        <?= e(app_name()) ?>
+      </div>
+      <p class="footer-tag"><?= e(site_text('site_tagline', 'footer_tagline')) ?></p>
+      <?php
+      $fEmail = site_setting('contact_email');
+      $fPhone = site_setting('contact_phone');
+      $fFb = site_setting('social_facebook');
+      if ($fEmail || $fPhone || $fFb): ?>
+      <p class="footer-contact">
+        <?php if ($fEmail): ?><a href="mailto:<?= e($fEmail) ?>">✉️ <?= e($fEmail) ?></a><?php endif; ?>
+        <?php if ($fPhone): ?><a href="tel:<?= e($fPhone) ?>">📞 <?= e($fPhone) ?></a><?php endif; ?>
+        <?php if ($fFb): ?><a href="<?= e($fFb) ?>" rel="noopener" target="_blank">📘 Facebook</a><?php endif; ?>
+      </p>
+      <?php endif; ?>
     </div>
     <nav class="footer-links">
       <a href="<?= e(url('complaints.php')) ?>"><?= e(t('nav_complaints')) ?></a>

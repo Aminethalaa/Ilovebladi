@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $supported) {
         $payload = [
             'title' => $title,
             'body' => $body,
-            'icon' => url('assets/img/icon-192.png'),
+            'icon' => app_icon_url(192),
             'url' => $link !== '' ? $link : url('index.php'),
         ];
         if ($image) {

@@ -55,6 +55,11 @@ public leaderboards** for communes, wilayas, citizens and associations.
 - Create/delete commune admins, verify associations, block users
 - Manage categories (add/disable) and communes (add under any wilaya)
 - Oversee all complaints
+- **White-label branding (هوية الموقع)**: change the site name, description, homepage
+  headline (all bilingual), upload a logo (the PWA/notification icon is generated from it
+  automatically), pick the three theme colors with a live color picker, and set footer
+  contact info — so the same platform can be deployed for any commune, association or
+  community under its own identity. Empty fields fall back to the Baladiyati defaults.
 
 ### 📲 PWA + Push notifications
 - Installable app on Android, iPhone and PC (manifest + service worker + offline page).

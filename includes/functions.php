@@ -50,9 +50,79 @@ function lc(array $row, string $col): string
     return (string) ($row[$col . '_' . lang()] ?? $row[$col . '_ar'] ?? '');
 }
 
+// ---------------------------------------------------------------- site settings (white-label)
+/** All rows of the settings table, cached per request. */
+function site_settings(): array
+{
+    static $s = null;
+    if ($s === null) {
+        $s = [];
+        try {
+            foreach (db()->query('SELECT k, v FROM settings') as $r) {
+                $s[$r['k']] = $r['v'];
+            }
+        } catch (Throwable $e) {
+            // settings table not created yet
+        }
+    }
+    return $s;
+}
+
+function site_setting(string $k, string $default = ''): string
+{
+    $v = site_settings()[$k] ?? '';
+    return $v !== '' ? $v : $default;
+}
+
+function setting_set(string $k, string $v): void
+{
+    db()->prepare('INSERT INTO settings (k, v) VALUES (?,?) ON DUPLICATE KEY UPDATE v = VALUES(v)')
+        ->execute([$k, $v]);
+}
+
+/** Localized setting override, falling back to the translation key. */
+function site_text(string $settingBase, string $langKey): string
+{
+    return site_setting($settingBase . '_' . lang()) ?: t($langKey);
+}
+
 function app_name(): string
 {
-    return lang() === 'ar' ? APP_NAME_AR : APP_NAME_FR;
+    return site_setting('site_name_' . lang(), lang() === 'ar' ? APP_NAME_AR : APP_NAME_FR);
+}
+
+function site_logo_url(): string
+{
+    $f = site_setting('site_logo');
+    return $f !== '' ? upload_url($f) : '';
+}
+
+/** App/push icon: custom generated from the uploaded logo, or the default. */
+function app_icon_url(int $size = 192): string
+{
+    $f = site_setting('site_icon_' . $size);
+    return $f !== '' ? upload_url($f) : url('assets/img/icon-' . $size . '.png');
+}
+
+function site_primary_color(): string
+{
+    $c = site_setting('color_primary');
+    return preg_match('/^#[0-9a-fA-F]{6}$/', $c) ? $c : '#006233';
+}
+
+/** Shade a hex color: $f in [-1,1], negative darkens toward black, positive lightens toward white. */
+function color_shade(string $hex, float $f): string
+{
+    if (!preg_match('/^#[0-9a-fA-F]{6}$/', $hex)) {
+        return $hex;
+    }
+    $out = '#';
+    foreach ([1, 3, 5] as $i) {
+        $c = hexdec(substr($hex, $i, 2));
+        $c = $f < 0 ? (int) round($c * (1 + $f)) : (int) round($c + (255 - $c) * $f);
+        $out .= str_pad(dechex(max(0, min(255, $c))), 2, '0', STR_PAD_LEFT);
+    }
+    return $out;
 }
 
 // ---------------------------------------------------------------- flash
@@ -397,7 +467,7 @@ function notify(int $userId, string $type, ?int $complaintId): void
     push_user($userId, [
         'title' => $appName,
         'body' => $subject . $ref,
-        'icon' => url('assets/img/icon-192.png'),
+        'icon' => app_icon_url(192),
         'url' => $complaintId ? url('complaint.php?id=' . $complaintId) : url('dashboard/notifications.php'),
     ]);
 }
