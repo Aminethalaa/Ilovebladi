@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
+if (!module_on('complaints')) {
+    redirect('index.php');
+}
 
 $fWilaya  = (int) ($_GET['wilaya'] ?? 0);
 $fCommune = (int) ($_GET['commune'] ?? 0);

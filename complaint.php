@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
+if (!module_on('complaints')) {
+    redirect('index.php');
+}
 
 $id = (int) ($_GET['id'] ?? 0);
 $st = db()->prepare('SELECT x.*, cat.icon, cat.name_ar AS cat_ar, cat.name_fr AS cat_fr,

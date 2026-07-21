@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
+if (!module_on('leaderboard')) {
+    redirect('index.php');
+}
 
 $tab = $_GET['tab'] ?? 'communes';
 if (!in_array($tab, ['communes', 'wilayas', 'citizens', 'associations'], true)) {

@@ -64,9 +64,15 @@ if ($hexOk($cPrimary) || $hexOk($cAccent) || $hexOk($cGold)): ?>
     </a>
     <nav class="mainnav" id="mainnav">
       <a href="<?= e(url('index.php')) ?>"><?= e(t('nav_home')) ?></a>
+      <?php if (module_on('complaints')): ?>
       <a href="<?= e(url('complaints.php')) ?>"><?= e(t('nav_complaints')) ?></a>
+      <?php endif; ?>
+      <?php if (module_on('trees')): ?>
       <a href="<?= e(url('trees.php')) ?>">🌳 <?= e(t('nav_trees')) ?></a>
+      <?php endif; ?>
+      <?php if (module_on('leaderboard')): ?>
       <a href="<?= e(url('leaderboard.php')) ?>"><?= e(t('nav_leaderboard')) ?></a>
+      <?php endif; ?>
       <?php if ($me): ?>
         <a href="<?= e(url(role_home($me))) ?>" class="nav-strong"><?= e(t('nav_dashboard')) ?></a>
         <a href="<?= e(url('logout.php')) ?>" class="nav-muted"><?= e(t('nav_logout')) ?></a>

@@ -21,8 +21,9 @@
       <?php endif; ?>
     </div>
     <nav class="footer-links">
-      <a href="<?= e(url('complaints.php')) ?>"><?= e(t('nav_complaints')) ?></a>
-      <a href="<?= e(url('leaderboard.php')) ?>"><?= e(t('nav_leaderboard')) ?></a>
+      <?php if (module_on('complaints')): ?><a href="<?= e(url('complaints.php')) ?>"><?= e(t('nav_complaints')) ?></a><?php endif; ?>
+      <?php if (module_on('trees')): ?><a href="<?= e(url('trees.php')) ?>"><?= e(t('nav_trees')) ?></a><?php endif; ?>
+      <?php if (module_on('leaderboard')): ?><a href="<?= e(url('leaderboard.php')) ?>"><?= e(t('nav_leaderboard')) ?></a><?php endif; ?>
       <a href="<?= e(url('register.php')) ?>"><?= e(t('nav_register')) ?></a>
     </nav>
   </div>
@@ -30,7 +31,7 @@
 </footer>
 <button id="installBtn" class="install-btn" hidden>📲 <?= e(t('pwa_install')) ?></button>
 <?php
-// Mobile bottom navigation (app-style). Active section from the current script.
+// Mobile bottom navigation (app-style, module-aware). Active section from the current script.
 $bnScript = $_SERVER['SCRIPT_NAME'] ?? '';
 $bnSect = 'home';
 if (strpos($bnScript, 'complaint') !== false) $bnSect = 'complaints';
@@ -39,36 +40,39 @@ if (strpos($bnScript, 'leaderboard') !== false) $bnSect = 'lb';
 if (strpos($bnScript, '/dashboard/') !== false || strpos($bnScript, '/admin/') !== false
     || strpos($bnScript, '/superadmin/') !== false) $bnSect = 'me';
 $bnMe = current_user();
+
 if ($bnMe && in_array($bnMe['role'], ['admin', 'superadmin'], true)) {
-    $bnFabUrl = url('admin/notify.php');
-    $bnFabIcon = '📣';
-    $bnFabLabel = t('bn_notify');
-} elseif ($bnMe) {
-    $bnFabUrl = url('dashboard/new-complaint.php');
-    $bnFabIcon = '📣';
-    $bnFabLabel = t('bn_report');
+    $bnFab = [url('admin/notify.php'), '📣', t('bn_notify')];
+} elseif (module_on('complaints')) {
+    $bnFab = [$bnMe ? url('dashboard/new-complaint.php') : url('register.php'), '📣', t('bn_report')];
 } else {
-    $bnFabUrl = url('register.php');
-    $bnFabIcon = '📣';
-    $bnFabLabel = t('bn_report');
+    $bnFab = [url('trees.php'), '🌳', t('bn_trees')];
 }
+
+$bnItems = [[url('index.php'), '🏠', t('nav_home'), $bnSect === 'home']];
+if (module_on('complaints')) {
+    $bnItems[] = [url('complaints.php'), '🗺️', t('nav_complaints'), $bnSect === 'complaints'];
+}
+if (module_on('trees')) {
+    $bnItems[] = [url('trees.php'), '🌳', t('bn_trees'), $bnSect === 'trees'];
+}
+if (!module_on('complaints') && module_on('leaderboard')) {
+    $bnItems[] = [url('leaderboard.php'), '🏆', t('nav_leaderboard'), $bnSect === 'lb'];
+}
+$bnItems[] = $bnMe
+    ? [url(role_home($bnMe)), '👤', t('nav_dashboard'), $bnSect === 'me']
+    : [url('login.php'), '👤', t('nav_login'), $bnSect === 'me'];
+$bnHalf = (int) ceil(count($bnItems) / 2);
 ?>
-<nav class="bottomnav">
-  <a class="<?= $bnSect === 'home' ? 'on' : '' ?>" href="<?= e(url('index.php')) ?>">
-    <span class="bn-ico">🏠</span><span class="bn-label"><?= e(t('nav_home')) ?></span></a>
-  <a class="<?= $bnSect === 'complaints' ? 'on' : '' ?>" href="<?= e(url('complaints.php')) ?>">
-    <span class="bn-ico">🗺️</span><span class="bn-label"><?= e(t('nav_complaints')) ?></span></a>
-  <a class="bn-fab-wrap" href="<?= e($bnFabUrl) ?>">
-    <span class="bn-fab"><?= $bnFabIcon ?></span><span class="bn-label"><?= e($bnFabLabel) ?></span></a>
-  <a class="<?= $bnSect === 'trees' ? 'on' : '' ?>" href="<?= e(url('trees.php')) ?>">
-    <span class="bn-ico">🌳</span><span class="bn-label"><?= e(t('bn_trees')) ?></span></a>
-  <?php if ($bnMe): ?>
-  <a class="<?= $bnSect === 'me' ? 'on' : '' ?>" href="<?= e(url(role_home($bnMe))) ?>">
-    <span class="bn-ico">👤</span><span class="bn-label"><?= e(t('nav_dashboard')) ?></span></a>
-  <?php else: ?>
-  <a class="<?= $bnSect === 'me' ? 'on' : '' ?>" href="<?= e(url('login.php')) ?>">
-    <span class="bn-ico">👤</span><span class="bn-label"><?= e(t('nav_login')) ?></span></a>
+<nav class="bottomnav" style="grid-template-columns: repeat(<?= count($bnItems) + 1 ?>, 1fr);">
+  <?php foreach ($bnItems as $i => $it): ?>
+  <?php if ($i === $bnHalf): ?>
+  <a class="bn-fab-wrap" href="<?= e($bnFab[0]) ?>">
+    <span class="bn-fab"><?= $bnFab[1] ?></span><span class="bn-label"><?= e($bnFab[2]) ?></span></a>
   <?php endif; ?>
+  <a class="<?= $it[3] ? 'on' : '' ?>" href="<?= e($it[0]) ?>">
+    <span class="bn-ico"><?= $it[1] ?></span><span class="bn-label"><?= e($it[2]) ?></span></a>
+  <?php endforeach; ?>
 </nav>
 <script src="<?= e(url('assets/js/app.js')) ?>"></script>
 </body>

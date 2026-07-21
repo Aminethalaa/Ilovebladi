@@ -45,7 +45,11 @@ require __DIR__ . '/../includes/layout/header.php';
         <?php if ($isAssoc): ?><span class="chip chip-sm">🤝 <?= e(t('role_association')) ?></span><?php endif; ?>
       </p>
     </div>
+    <?php if (module_on('complaints')): ?>
     <a class="btn btn-primary btn-lg" href="<?= e(url('dashboard/new-complaint.php')) ?>">📣 <?= e(t('new_complaint')) ?></a>
+    <?php elseif (module_on('trees')): ?>
+    <a class="btn btn-primary btn-lg" href="<?= e(url('trees.php')) ?>">🌳 <?= e(t('nav_trees')) ?></a>
+    <?php endif; ?>
   </div>
 
   <?php if ($isAssoc && (int) $me['is_verified'] === 0): ?>

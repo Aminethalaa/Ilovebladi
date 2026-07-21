@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/trees.php';
+if (!module_on('trees')) {
+    redirect('index.php');
+}
 tree_tables();
 
 $me = current_user();

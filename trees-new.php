@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/trees.php';
+if (!module_on('trees')) {
+    redirect('index.php');
+}
 $me = require_role('admin', 'association', 'superadmin');
 if ($me['role'] === 'association' && (int) $me['is_verified'] !== 1) {
     flash_set('error', t('assoc_pending_banner'));

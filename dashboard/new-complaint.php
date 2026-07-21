@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
+if (!module_on('complaints')) {
+    redirect('index.php');
+}
 $me = require_role('citizen', 'association');
 
 $errors = [];

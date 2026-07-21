@@ -86,6 +86,12 @@ function site_text(string $settingBase, string $langKey): string
     return site_setting($settingBase . '_' . lang()) ?: t($langKey);
 }
 
+/** Feature modules: enabled unless explicitly switched off ('0') by the super admin. */
+function module_on(string $module): bool
+{
+    return site_setting('mod_' . $module) !== '0';
+}
+
 function app_name(): string
 {
     return site_setting('site_name_' . lang(), lang() === 'ar' ? APP_NAME_AR : APP_NAME_FR);

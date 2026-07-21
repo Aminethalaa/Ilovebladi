@@ -9,7 +9,7 @@ $old = ['type' => 'citizen', 'name' => '', 'email' => '', 'wilaya_id' => '', 'co
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
-    $old['type']       = $_POST['type'] === 'association' ? 'association' : 'citizen';
+    $old['type']       = (module_on('associations') && ($_POST['type'] ?? '') === 'association') ? 'association' : 'citizen';
     $old['name']       = trim($_POST['name'] ?? '');
     $old['email']      = mb_strtolower(trim($_POST['email'] ?? ''));
     $old['wilaya_id']  = (int) ($_POST['wilaya_id'] ?? 0);
@@ -73,6 +73,7 @@ require __DIR__ . '/includes/layout/header.php';
     <?php foreach ($errors as $err): ?><div class="flash flash-error"><?= e($err) ?></div><?php endforeach; ?>
     <form method="post" class="form">
       <?= csrf_field() ?>
+      <?php if (module_on('associations')): ?>
       <div class="type-toggle">
         <label class="type-opt <?= $old['type'] === 'citizen' ? 'on' : '' ?>">
           <input type="radio" name="type" value="citizen" <?= $old['type'] === 'citizen' ? 'checked' : '' ?>>
@@ -83,6 +84,9 @@ require __DIR__ . '/includes/layout/header.php';
           🤝 <?= e(t('reg_type_assoc')) ?>
         </label>
       </div>
+      <?php else: ?>
+      <input type="hidden" name="type" value="citizen">
+      <?php endif; ?>
       <label class="field"><span data-label-citizen="<?= e(t('reg_name')) ?>" data-label-assoc="<?= e(t('reg_assoc_name')) ?>" id="nameLabel"><?= e($old['type'] === 'association' ? t('reg_assoc_name') : t('reg_name')) ?></span>
         <input required name="name" value="<?= e($old['name']) ?>" maxlength="120">
       </label>

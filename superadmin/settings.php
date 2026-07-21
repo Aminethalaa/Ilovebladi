@@ -39,6 +39,18 @@ function generate_site_icons(string $logoFile): void
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check();
 
+    // feature modules — complaints and trees cannot both be off
+    $modComplaints = !empty($_POST['mod_complaints']);
+    $modTrees = !empty($_POST['mod_trees']);
+    if (!$modComplaints && !$modTrees) {
+        flash_set('error', t('err_modules'));
+        redirect('superadmin/settings.php');
+    }
+    setting_set('mod_complaints', $modComplaints ? '' : '0');
+    setting_set('mod_trees', $modTrees ? '' : '0');
+    setting_set('mod_leaderboard', !empty($_POST['mod_leaderboard']) ? '' : '0');
+    setting_set('mod_associations', !empty($_POST['mod_associations']) ? '' : '0');
+
     // texts (empty value = fall back to the built-in default)
     foreach (['site_name_ar', 'site_name_fr', 'site_tagline_ar', 'site_tagline_fr',
               'hero_title_ar', 'hero_title_fr', 'hero_sub_ar', 'hero_sub_fr',
@@ -147,6 +159,17 @@ require __DIR__ . '/../includes/layout/header.php';
           <input type="color" name="color_gold" value="<?= e($S('color_gold') ?: '#c8a951') ?>"></label>
       </div>
       <label class="field"><span><input type="checkbox" name="colors_reset" value="1"> <?= e(t('ss_colors_reset')) ?></span></label>
+    </div>
+
+    <div class="card card-pad">
+      <h3>🧩 <?= e(t('ss_modules')) ?></h3>
+      <p class="hint"><?= e(t('ss_modules_hint')) ?></p>
+      <div class="modules-grid">
+        <label class="field"><span><input type="checkbox" name="mod_complaints" value="1" <?= module_on('complaints') ? 'checked' : '' ?>> 📣 <?= e(t('ss_mod_complaints')) ?></span></label>
+        <label class="field"><span><input type="checkbox" name="mod_trees" value="1" <?= module_on('trees') ? 'checked' : '' ?>> 🌳 <?= e(t('ss_mod_trees')) ?></span></label>
+        <label class="field"><span><input type="checkbox" name="mod_leaderboard" value="1" <?= module_on('leaderboard') ? 'checked' : '' ?>> 🏆 <?= e(t('ss_mod_leaderboard')) ?></span></label>
+        <label class="field"><span><input type="checkbox" name="mod_associations" value="1" <?= module_on('associations') ? 'checked' : '' ?>> 🤝 <?= e(t('ss_mod_assoc')) ?></span></label>
+      </div>
     </div>
 
     <div class="card card-pad">

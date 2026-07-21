@@ -66,10 +66,16 @@ require __DIR__ . '/includes/layout/header.php';
       <h1><?= e(site_text('hero_title', 'hero_h1')) ?></h1>
       <p class="hero-sub"><?= e(site_text('hero_sub', 'hero_sub')) ?></p>
       <div class="hero-cta">
+        <?php if (module_on('complaints')): ?>
         <a class="btn btn-primary btn-lg" href="<?= e(url($me ? 'dashboard/new-complaint.php' : 'register.php')) ?>">📣 <?= e(t('hero_cta_report')) ?></a>
         <a class="btn btn-ghost btn-lg" href="<?= e(url('complaints.php')) ?>">🗺️ <?= e(t('hero_cta_browse')) ?></a>
+        <?php else: ?>
+        <a class="btn btn-primary btn-lg" href="<?= e(url('trees.php')) ?>">🌳 <?= e(t('home_trees_cta')) ?></a>
+        <a class="btn btn-ghost btn-lg" href="<?= e(url('register.php')) ?>"><?= e(t('nav_register')) ?></a>
+        <?php endif; ?>
       </div>
     </div>
+    <?php if (module_on('complaints')): ?>
     <div class="hero-stats">
       <div class="stat-card"><span class="stat-num" data-count="<?= (int) $S['total'] ?>">0</span><span class="stat-label"><?= e(t('stat_total')) ?></span></div>
       <div class="stat-card stat-green"><span class="stat-num" data-count="<?= (int) $S['resolved'] ?>">0</span><span class="stat-label"><?= e(t('stat_resolved')) ?></span></div>
@@ -78,9 +84,17 @@ require __DIR__ . '/includes/layout/header.php';
       <div class="stat-card"><span class="stat-num" data-count="<?= (int) $S['communes'] ?>">0</span><span class="stat-label"><?= e(t('stat_communes')) ?></span></div>
       <div class="stat-card"><span class="stat-num" data-count="<?= (int) $S['citizens'] + (int) $S['assocs'] ?>">0</span><span class="stat-label"><?= e(t('stat_members')) ?></span></div>
     </div>
+    <?php else: ?>
+    <div class="hero-stats">
+      <div class="stat-card"><span class="stat-num" data-count="<?= $treesTotal ?>">0</span><span class="stat-label"><?= e(t('trees_planted')) ?></span></div>
+      <div class="stat-card stat-green"><span class="stat-num" data-count="<?= count($activeCampaigns) ?>">0</span><span class="stat-label"><?= e(t('trees_active_campaigns')) ?></span></div>
+      <div class="stat-card"><span class="stat-num" data-count="<?= (int) $S['citizens'] + (int) $S['assocs'] ?>">0</span><span class="stat-label"><?= e(t('stat_members')) ?></span></div>
+    </div>
+    <?php endif; ?>
   </div>
 </section>
 
+<?php if (module_on('complaints')): ?>
 <section class="section">
   <div class="container">
     <h2 class="section-title"><?= e(t('home_by_category')) ?></h2>
@@ -95,7 +109,9 @@ require __DIR__ . '/includes/layout/header.php';
     </div>
   </div>
 </section>
+<?php endif; ?>
 
+<?php if (module_on('trees')): ?>
 <section class="section trees-band">
   <div class="container">
     <h2 class="section-title">🌳 <?= e(t('home_trees_title')) ?></h2>
@@ -119,7 +135,9 @@ require __DIR__ . '/includes/layout/header.php';
     <p class="center"><a class="btn btn-primary" href="<?= e(url('trees.php')) ?>"><?= e(t('home_trees_cta')) ?></a></p>
   </div>
 </section>
+<?php endif; ?>
 
+<?php if (module_on('complaints')): ?>
 <section class="section section-alt">
   <div class="container">
     <h2 class="section-title"><?= e(t('home_how_title')) ?></h2>
@@ -176,6 +194,8 @@ require __DIR__ . '/includes/layout/header.php';
     </div>
   </div>
 </section>
+<?php endif; ?>
+
 <?php endif; ?>
 
 <section class="cta-band">
