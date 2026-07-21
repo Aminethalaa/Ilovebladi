@@ -41,7 +41,10 @@ require __DIR__ . '/../includes/layout/header.php';
     <a class="card card-pad quick" href="<?= e(url('superadmin/users.php')) ?>">👥 <?= e(t('sa_manage_users')) ?></a>
     <a class="card card-pad quick" href="<?= e(url('superadmin/categories.php')) ?>">🏷️ <?= e(t('sa_manage_categories')) ?></a>
     <a class="card card-pad quick" href="<?= e(url('superadmin/communes.php')) ?>">🗺️ <?= e(t('sa_manage_communes')) ?></a>
+    <a class="card card-pad quick" href="<?= e(url('admin/notify.php')) ?>">📣 <?= e(t('notify_page_title')) ?></a>
   </div>
+
+  <?php require BASE_PATH . '/includes/layout/push-card.php'; ?>
 
   <section class="dash-section">
     <h2><?= e(t('sa_recent')) ?></h2>

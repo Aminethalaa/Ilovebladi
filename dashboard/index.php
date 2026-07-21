@@ -52,6 +52,8 @@ require __DIR__ . '/../includes/layout/header.php';
   <div class="flash flash-warn">⏳ <?= e(t('assoc_pending_banner')) ?></div>
   <?php endif; ?>
 
+  <?php require BASE_PATH . '/includes/layout/push-card.php'; ?>
+
   <div class="stat-row">
     <div class="stat-card"><span class="stat-num"><?= (int) $my['total'] ?></span><span class="stat-label"><?= e(t('dash_my_total')) ?></span></div>
     <div class="stat-card"><span class="stat-num"><?= (int) $my['open_'] ?></span><span class="stat-label"><?= e(t('dash_my_open')) ?></span></div>

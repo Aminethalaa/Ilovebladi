@@ -299,7 +299,7 @@ function log_event(int $complaintId, ?int $userId, string $event, ?string $note 
                    VALUES (?,?,?,?,NOW())')->execute([$complaintId, $userId, $event, $note]);
 }
 
-/** In-app notification + best-effort email. */
+/** In-app notification + best-effort email + Web Push. */
 function notify(int $userId, string $type, ?int $complaintId): void
 {
     db()->prepare('INSERT INTO notifications (user_id, type, complaint_id, is_read, created_at)
@@ -329,6 +329,14 @@ function notify(int $userId, string $type, ?int $complaintId): void
         $subject . $ref . "\n\n" . ($L['email_footer'] ?? ''),
         $headers
     );
+
+    require_once BASE_PATH . '/includes/webpush.php';
+    push_user($userId, [
+        'title' => $appName,
+        'body' => $subject . $ref,
+        'icon' => url('assets/img/icon-192.png'),
+        'url' => $complaintId ? url('complaint.php?id=' . $complaintId) : url('dashboard/notifications.php'),
+    ]);
 }
 
 function unread_notifications(int $userId): int

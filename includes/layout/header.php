@@ -24,8 +24,15 @@ $langSwitch = function (string $to): string {
 <?php endif; ?>
 <link rel="stylesheet" href="<?= e(url('assets/css/style.css')) ?>">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇩🇿</text></svg>">
+<link rel="manifest" href="<?= e(url('manifest.json')) ?>">
+<meta name="theme-color" content="#006233">
+<link rel="apple-touch-icon" href="<?= e(url('assets/img/icon-192.png')) ?>">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="<?= e(app_name()) ?>">
 </head>
-<body>
+<body data-base="<?= e(url('')) ?>">
 <header class="topbar">
   <div class="container topbar-inner">
     <a class="brand" href="<?= e(url('index.php')) ?>">

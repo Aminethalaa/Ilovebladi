@@ -40,8 +40,13 @@ require __DIR__ . '/../includes/layout/header.php';
       <h1>🏛️ <?= e(t('admin_title')) ?></h1>
       <p class="muted">📍 <?= e(lc($me, 'commune')) ?> — <?= e(lc($me, 'wilaya')) ?></p>
     </div>
-    <div class="score-big" title="<?= e(t('lb_score')) ?>"><?= $score ?><span>/100</span></div>
+    <div class="admin-head-side">
+      <div class="score-big" title="<?= e(t('lb_score')) ?>"><?= $score ?><span>/100</span></div>
+      <a class="btn btn-primary" href="<?= e(url('admin/notify.php')) ?>">📣 <?= e(t('notify_page_title')) ?></a>
+    </div>
   </div>
+
+  <?php require BASE_PATH . '/includes/layout/push-card.php'; ?>
 
   <div class="stat-row">
     <div class="stat-card stat-warn"><span class="stat-num"><?= (int) $S['pending'] ?></span><span class="stat-label"><?= e(t('st_pending')) ?></span></div>

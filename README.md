@@ -37,6 +37,22 @@ public leaderboards** for communes, wilayas, citizens and associations.
 - Manage categories (add/disable) and communes (add under any wilaya)
 - Oversee all complaints
 
+### 📲 PWA + Push notifications
+- Installable app on Android, iPhone and PC (manifest + service worker + offline page).
+  Chrome/Edge show an "Install app" button; on iPhone use Safari → Share → *Add to Home Screen*.
+- Real Web Push notifications (VAPID + RFC 8291 encryption implemented in plain PHP —
+  no Composer needed). Users opt in with an explicit "Enable notifications" button on their
+  dashboard; complaint status changes then reach their phone/PC even with the site closed.
+- Admins get a **notification composer** (📣 button on their dashboard): title, text,
+  optional image and click-link, sent to all subscribed residents of their commune.
+  The super admin can broadcast to everyone or to one wilaya.
+- Contextual permissions: notifications are requested only on that button tap, GPS only when
+  tapping "my location", camera only when tapping the photo field.
+- Requirements: **HTTPS** (enable AutoSSL in cPanel) and the PHP **openssl** + **curl**
+  extensions (present on virtually every host). Push tables and VAPID keys are created
+  automatically on first use — existing databases need no migration.
+- iPhone note: web push requires iOS 16.4+ and the app must be added to the Home Screen first.
+
 ### Public
 - Landing page focused on live statistics (animated counters, category bars, top communes, latest before/after fixes)
 - Complaints browser with map + filters (wilaya → commune cascade, category, status)

@@ -13,6 +13,7 @@
   </div>
   <div class="footer-bottom"><?= e(app_name()) ?> © <?= date('Y') ?> 🇩🇿</div>
 </footer>
+<button id="installBtn" class="install-btn" hidden>📲 <?= e(t('pwa_install')) ?></button>
 <script src="<?= e(url('assets/js/app.js')) ?>"></script>
 </body>
 </html>

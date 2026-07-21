@@ -6,9 +6,27 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS user_badges, badges, points_log, notifications, upvotes,
-    complaint_events, complaints, categories, users, communes, wilayas;
+DROP TABLE IF EXISTS push_subscriptions, settings, user_badges, badges, points_log,
+    notifications, upvotes, complaint_events, complaints, categories, users, communes, wilayas;
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- Key/value settings (VAPID push keys are stored here automatically)
+CREATE TABLE settings (
+  k VARCHAR(64) PRIMARY KEY,
+  v TEXT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Web Push subscriptions (one row per device that enabled notifications)
+CREATE TABLE push_subscriptions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  endpoint TEXT NOT NULL,
+  endpoint_hash CHAR(64) NOT NULL UNIQUE,
+  p256dh VARCHAR(255) NOT NULL,
+  auth VARCHAR(64) NOT NULL,
+  created_at DATETIME NOT NULL,
+  KEY idx_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE wilayas (
   id INT PRIMARY KEY,
