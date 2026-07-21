@@ -12,7 +12,7 @@ function url(string $path = ''): string
     return WEB_BASE . '/' . ltrim($path, '/');
 }
 
-function redirect(string $path): never
+function redirect(string $path): void
 {
     header('Location: ' . url($path));
     exit;

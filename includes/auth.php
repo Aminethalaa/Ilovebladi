@@ -89,11 +89,11 @@ function require_role(string ...$roles): array
 /** Landing page of the account's role. */
 function role_home(array $u): string
 {
-    return match ($u['role']) {
-        'superadmin' => 'superadmin/index.php',
-        'admin'      => 'admin/index.php',
-        default      => 'dashboard/index.php',
-    };
+    switch ($u['role']) {
+        case 'superadmin': return 'superadmin/index.php';
+        case 'admin':      return 'admin/index.php';
+        default:           return 'dashboard/index.php';
+    }
 }
 
 // ----- CSRF -----

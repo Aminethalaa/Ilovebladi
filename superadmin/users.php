@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     redirect('superadmin/users.php?' . http_build_query(array_filter([
         'role' => $_GET['role'] ?? '', 'verified' => $_GET['verified'] ?? '',
-    ], fn($v) => $v !== '')));
+    ], function ($v) { return $v !== ''; })));
 }
 
 $fRole = $_GET['role'] ?? '';

@@ -16,7 +16,10 @@ $cats = $db->query("SELECT c.id, c.name_ar, c.name_fr, c.icon, COUNT(x.id) AS n
     LEFT JOIN complaints x ON x.category_id = c.id AND x.status NOT IN ('pending','rejected')
     WHERE c.is_active = 1
     GROUP BY c.id, c.name_ar, c.name_fr, c.icon ORDER BY n DESC")->fetchAll();
-$maxCat = max(1, ...array_map(fn($c) => (int) $c['n'], $cats ?: [['n' => 1]]));
+$maxCat = 1;
+foreach ($cats as $c) {
+    $maxCat = max($maxCat, (int) $c['n']);
+}
 
 $topCommunes = $db->query("SELECT cm.name_ar, cm.name_fr, w.name_ar AS wilaya_ar, w.name_fr AS wilaya_fr,
         COUNT(*) AS published,

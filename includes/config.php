@@ -5,6 +5,19 @@
  * then import database.sql via phpMyAdmin and open /install.php once.
  */
 
+// Requires PHP 7.4+ (8.1+ recommended). On cPanel: MultiPHP Manager / Select PHP Version.
+if (version_compare(PHP_VERSION, '7.4.0', '<')) {
+    http_response_code(500);
+    die('This application requires PHP 7.4 or newer — your server runs PHP ' . PHP_VERSION
+        . '. In cPanel, open "MultiPHP Manager" or "Select PHP Version" and choose PHP 8.1+.'
+        . ' — التطبيق يتطلب PHP 7.4 على الأقل. غيّر إصدار PHP من لوحة cPanel.');
+}
+if (!extension_loaded('pdo_mysql') || !extension_loaded('mbstring')) {
+    http_response_code(500);
+    die('Missing PHP extensions: pdo_mysql and mbstring are required. Enable them in cPanel'
+        . ' ("Select PHP Version" → Extensions). — إضافات PHP الناقصة: pdo_mysql و mbstring، فعّلها من cPanel.');
+}
+
 // ----- DATABASE (edit these) -----
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'baladiyati');

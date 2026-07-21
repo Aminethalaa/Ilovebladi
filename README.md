@@ -70,6 +70,18 @@ public leaderboards** for communes, wilayas, citizens and associations.
 
 That's it. Log in as super admin, add commune admins from the dashboard, and the platform is live.
 
+### Troubleshooting a blank page / HTTP 500
+
+1. **Open `https://your-domain.tld/checkup.php`** — it diagnoses the usual causes itself
+   (PHP version, missing extensions, wrong DB credentials, missing tables, folder permissions).
+2. The #1 cause is an **old PHP version**: in cPanel open **MultiPHP Manager** (or
+   **Select PHP Version**), select your domain and choose **PHP 8.1+** (7.4 minimum).
+3. Make sure the extensions **pdo_mysql** and **mbstring** are enabled
+   (cPanel → Select PHP Version → Extensions). Usually they are by default.
+4. The real error message is in **cPanel → Metrics → Errors**, or in an `error_log`
+   file created next to the failing script in File Manager.
+5. Delete `checkup.php` (and `install.php`) once the site is running.
+
 ### Notes
 - **Communes list**: the seed contains every wilaya's chef-lieu plus the main communes of
   Alger, Oran and Constantine. Add the rest of your communes from
