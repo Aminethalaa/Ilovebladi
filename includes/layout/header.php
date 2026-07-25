@@ -16,6 +16,25 @@ $langSwitch = function (string $to): string {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title><?= e($page_title ?? '') ?> — <?= e(app_name()) ?></title>
+<?php
+// Open Graph / Twitter cards — rich previews on Facebook, WhatsApp, Twitter.
+$ogTitle = ($og['title'] ?? $page_title ?? '') . ' — ' . app_name();
+$ogDesc  = $og['description'] ?? site_text('site_tagline', 'footer_tagline');
+$ogImage = $og['image'] ?? app_icon_url(512);
+$ogUrl   = $og['url'] ?? abs_url(ltrim($_SERVER['REQUEST_URI'] ?? '', '/'));
+?>
+<meta name="description" content="<?= e($ogDesc) ?>">
+<meta property="og:type" content="<?= isset($og) ? 'article' : 'website' ?>">
+<meta property="og:site_name" content="<?= e(app_name()) ?>">
+<meta property="og:locale" content="<?= lang() === 'ar' ? 'ar_DZ' : 'fr_DZ' ?>">
+<meta property="og:title" content="<?= e($ogTitle) ?>">
+<meta property="og:description" content="<?= e($ogDesc) ?>">
+<meta property="og:image" content="<?= e($ogImage) ?>">
+<meta property="og:url" content="<?= e($ogUrl) ?>">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<?= e($ogTitle) ?>">
+<meta name="twitter:description" content="<?= e($ogDesc) ?>">
+<meta name="twitter:image" content="<?= e($ogImage) ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">

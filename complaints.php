@@ -1,8 +1,10 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/comments.php';
 if (!module_on('complaints')) {
     redirect('index.php');
 }
+comment_tables();
 
 $fWilaya  = (int) ($_GET['wilaya'] ?? 0);
 $fCommune = (int) ($_GET['commune'] ?? 0);
@@ -33,7 +35,8 @@ $total = (int) $st->fetch()['c'];
 
 $st = db()->prepare("SELECT x.*, cat.icon, cat.name_ar AS cat_ar, cat.name_fr AS cat_fr,
         cm.name_ar AS commune_ar, cm.name_fr AS commune_fr,
-        w.name_ar AS wilaya_ar, w.name_fr AS wilaya_fr
+        w.name_ar AS wilaya_ar, w.name_fr AS wilaya_fr,
+        (SELECT COUNT(*) FROM comments cc WHERE cc.complaint_id = x.id) AS n_comments
         $sql ORDER BY x.upvotes DESC, x.id DESC LIMIT $per OFFSET " . ($page - 1) * $per);
 $st->execute($bind);
 $rows = $st->fetchAll();
@@ -95,7 +98,7 @@ require __DIR__ . '/includes/layout/header.php';
         <span class="chip"><?= e($r['icon']) ?> <?= e(lc($r, 'cat')) ?></span>
         <h3><?= e($r['title']) ?></h3>
         <p class="muted">📍 <?= e(lc($r, 'commune')) ?> — <?= e(lc($r, 'wilaya')) ?></p>
-        <p class="c-meta"><span>👍 <?= (int) $r['upvotes'] ?></span><span><?= e(time_ago($r['created_at'])) ?></span></p>
+        <p class="c-meta"><span>👍 <?= (int) $r['upvotes'] ?> · 💬 <?= (int) $r['n_comments'] ?></span><span><?= e(time_ago($r['created_at'])) ?></span></p>
       </div>
     </a>
     <?php endforeach; ?>

@@ -39,6 +39,7 @@ require __DIR__ . '/includes/layout/header.php';
       </label>
       <button class="btn btn-primary btn-lg btn-block"><?= e(t('nav_login')) ?></button>
     </form>
+    <p class="center"><a class="muted" href="<?= e(url('forgot-password.php')) ?>"><?= e(t('pr_link')) ?></a></p>
     <p class="center muted"><?= e(t('no_account')) ?> <a href="<?= e(url('register.php')) ?>"><?= e(t('nav_register')) ?></a></p>
   </div>
 </div>

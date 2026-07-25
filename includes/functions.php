@@ -23,6 +23,15 @@ function upload_url(?string $file): string
     return $file ? url('uploads/' . rawurlencode($file)) : '';
 }
 
+/** Absolute https/http URL — required for emails, Open Graph tags and sharing. */
+function abs_url(string $path = ''): string
+{
+    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    return ($https ? 'https://' : 'http://') . $host . url($path);
+}
+
 // ---------------------------------------------------------------- i18n
 function lang(): string
 {

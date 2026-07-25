@@ -231,6 +231,34 @@ document.addEventListener('DOMContentLoaded', function () {
     show(0, 1, false);
   });
 
+  // ---------- share: copy link (with Web Share API when available) ----------
+  document.querySelectorAll('.share-bar').forEach(function (bar) {
+    var copyBtn = bar.querySelector('.share-copy');
+    if (!copyBtn) return;
+    copyBtn.addEventListener('click', function () {
+      var url = bar.dataset.shareUrl;
+      if (navigator.share) {
+        navigator.share({ title: bar.dataset.shareText, url: url }).catch(function () {});
+        return;
+      }
+      var done = function () {
+        var el = document.createElement('div');
+        el.className = 'toast';
+        el.textContent = bar.dataset.copied;
+        document.body.appendChild(el);
+        setTimeout(function () { el.remove(); }, 2200);
+      };
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(done, done);
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = url; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        ta.remove(); done();
+      }
+    });
+  });
+
   // ---------- active nav highlighting ----------
   var here = location.pathname.split('/').pop() || 'index.php';
   document.querySelectorAll('.mainnav a').forEach(function (a) {

@@ -94,6 +94,13 @@ if ($me) {
 
 $use_leaflet = true;
 $page_title = $tc['title'];
+$og = [
+    'title' => '🌳 ' . $tc['title'],
+    'description' => mb_strimwidth($tc['description'], 0, 180, '…'),
+    'url' => abs_url('tree-campaign.php?id=' . $id),
+];
+$shareUrl = $og['url'];
+$shareText = $tc['title'] . ' — ' . $planted . '/' . (int) $tc['goal'] . ' 🌳';
 require __DIR__ . '/includes/layout/header.php';
 ?>
 <div class="container page">
@@ -107,12 +114,15 @@ require __DIR__ . '/includes/layout/header.php';
         · <?= e(t('trees_by')) ?> <strong><?= e($tc['creator_name']) ?></strong>
         <?php if ($tc['ends_at']): ?> · ⏳ <?= e($tc['ends_at']) ?><?php endif; ?></p>
     </div>
-    <?php if (($isCreator || $isSuper) && $tc['status'] === 'active'): ?>
-    <form method="post" onsubmit="return confirm('<?= e(t('confirm_delete')) ?>');">
-      <?= csrf_field() ?><input type="hidden" name="action" value="close_campaign">
-      <button class="btn btn-ghost"><?= e(t('trees_close_btn')) ?></button>
-    </form>
-    <?php endif; ?>
+    <div class="detail-actions">
+      <?php require __DIR__ . '/includes/layout/share.php'; ?>
+      <?php if (($isCreator || $isSuper) && $tc['status'] === 'active'): ?>
+      <form method="post" onsubmit="return confirm('<?= e(t('confirm_delete')) ?>');">
+        <?= csrf_field() ?><input type="hidden" name="action" value="close_campaign">
+        <button class="btn btn-ghost"><?= e(t('trees_close_btn')) ?></button>
+      </form>
+      <?php endif; ?>
+    </div>
   </div>
 
   <div class="card card-pad">

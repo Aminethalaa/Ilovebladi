@@ -6,7 +6,8 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS user_assoc_categories, assoc_profiles, assoc_categories,
+DROP TABLE IF EXISTS password_resets, comments,
+    user_assoc_categories, assoc_profiles, assoc_categories,
     tree_confirms, tree_plantings, tree_campaigns,
     push_subscriptions, settings, user_badges, badges, points_log,
     notifications, upvotes, complaint_events, complaints, categories, users, communes, wilayas;
@@ -68,6 +69,28 @@ CREATE TABLE tree_confirms (
   user_id INT NOT NULL,
   created_at DATETIME NOT NULL,
   PRIMARY KEY (planting_id, user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Discussion threads on complaints (auto-creates on first use too)
+CREATE TABLE comments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  complaint_id INT NOT NULL,
+  user_id INT NOT NULL,
+  body TEXT NOT NULL,
+  is_official TINYINT(1) NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL,
+  KEY idx_complaint (complaint_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Password reset tokens (only a SHA-256 hash of each token is stored)
+CREATE TABLE password_resets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  token_hash CHAR(64) NOT NULL UNIQUE,
+  expires_at DATETIME NOT NULL,
+  used_at DATETIME NULL,
+  created_at DATETIME NOT NULL,
+  KEY idx_user (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Association directory: activity domains, extended profiles, and the

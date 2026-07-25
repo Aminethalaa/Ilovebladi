@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/comments.php';
 if (!module_on('complaints')) {
     redirect('index.php');
 }
@@ -55,7 +56,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $me) {
     csrf_check();
     $action = $_POST['action'] ?? '';
 
-    if ($action === 'citizen_submit_fix' && $canCitizenSubmitFix) {
+    if ($action === 'comment') {
+        if (comment_post($c, $me, (string) ($_POST['body'] ?? ''))) {
+            flash_set('success', t('cm_posted'));
+        } else {
+            flash_set('error', t('cm_too_short'));
+        }
+
+    } elseif ($action === 'delete_comment') {
+        $cid = (int) ($_POST['comment_id'] ?? 0);
+        $q = db()->prepare('SELECT * FROM comments WHERE id = ? AND complaint_id = ?');
+        $q->execute([$cid, $id]);
+        $cm = $q->fetch();
+        if ($cm && comment_can_delete($cm, $c, $me)) {
+            db()->prepare('DELETE FROM comments WHERE id = ?')->execute([$cid]);
+            flash_set('success', t('cm_deleted'));
+        }
+
+    } elseif ($action === 'citizen_submit_fix' && $canCitizenSubmitFix) {
         $photo = upload_photo($_FILES['after_photo'] ?? [], $err);
         if (!$photo) {
             flash_set('error', t($err ?? 'err_photo_upload'));
@@ -144,8 +162,19 @@ $ev = db()->prepare('SELECT ev.*, u.name AS actor, u.role AS actor_role
 $ev->execute([$id]);
 $events = $ev->fetchAll();
 
+$comments = comments_of($id);
+
 $use_leaflet = $c['lat'] !== null;
 $page_title = $c['title'];
+// Open Graph: rich preview when shared on Facebook / WhatsApp
+$og = [
+    'title' => $c['title'],
+    'description' => mb_strimwidth($c['description'], 0, 180, '…'),
+    'image' => abs_url('uploads/' . rawurlencode($c['after_photo'] ?: $c['photo'])),
+    'url' => abs_url('complaint.php?id=' . $id),
+];
+$shareUrl = $og['url'];
+$shareText = $c['title'];
 require __DIR__ . '/includes/layout/header.php';
 $lvl = level_for((int) $c['reporter_points']);
 ?>
@@ -181,6 +210,7 @@ $lvl = level_for((int) $c['reporter_points']);
       <?php if ($isZoneAdmin || $isSuper): ?>
       <a class="btn btn-ghost" href="<?= e(url('admin/complaint.php?id=' . $id)) ?>">🛠️ <?= e(t('admin_manage')) ?></a>
       <?php endif; ?>
+      <?php require __DIR__ . '/includes/layout/share.php'; ?>
     </div>
   </div>
 
@@ -201,6 +231,49 @@ $lvl = level_for((int) $c['reporter_points']);
       <div class="card card-pad">
         <h2><?= e(t('description')) ?></h2>
         <p class="pre"><?= nl2br(e($c['description'])) ?></p>
+      </div>
+
+      <div class="card card-pad" id="comments">
+        <h2>💬 <?= e(t('cm_title')) ?> (<?= count($comments) ?>)</h2>
+        <?php if (!$comments): ?>
+        <p class="empty"><?= e(t('cm_empty')) ?></p>
+        <?php endif; ?>
+        <ul class="comment-list">
+          <?php foreach ($comments as $cm): ?>
+          <li class="comment <?= (int) $cm['is_official'] === 1 ? 'comment-official' : '' ?>">
+            <div class="comment-head">
+              <strong><?= e($cm['author']) ?></strong>
+              <?php if ((int) $cm['is_official'] === 1): ?>
+              <span class="badge st-closed">✔ <?= e(t('cm_official')) ?></span>
+              <?php elseif ($cm['author_role'] === 'association'): ?>
+              <span class="chip chip-sm">🤝</span>
+              <?php endif; ?>
+              <span class="muted"><?= e(time_ago($cm['created_at'])) ?></span>
+              <?php if (comment_can_delete($cm, $c, $me)): ?>
+              <form method="post" class="comment-del" onsubmit="return confirm('<?= e(t('confirm_delete')) ?>');">
+                <?= csrf_field() ?><input type="hidden" name="action" value="delete_comment">
+                <input type="hidden" name="comment_id" value="<?= (int) $cm['id'] ?>">
+                <button class="link-btn" title="<?= e(t('cm_delete')) ?>">🗑️</button>
+              </form>
+              <?php endif; ?>
+            </div>
+            <p class="comment-body"><?= nl2br(e($cm['body'])) ?></p>
+          </li>
+          <?php endforeach; ?>
+        </ul>
+
+        <?php if ($me): ?>
+        <form method="post" class="form comment-form">
+          <?= csrf_field() ?><input type="hidden" name="action" value="comment">
+          <label class="field"><span><?= e(t('cm_add')) ?></span>
+            <textarea name="body" rows="3" required minlength="2" maxlength="1500"
+                      placeholder="<?= e(t('cm_placeholder')) ?>"></textarea>
+          </label>
+          <button class="btn btn-primary"><?= e(t('cm_send')) ?></button>
+        </form>
+        <?php else: ?>
+        <p class="muted center"><a href="<?= e(url('login.php')) ?>"><?= e(t('cm_login_hint')) ?></a></p>
+        <?php endif; ?>
       </div>
       <?php if ($c['lat'] !== null): ?>
       <div id="miniMap" class="mini-map" data-lat="<?= e($c['lat']) ?>" data-lng="<?= e($c['lng']) ?>"></div>

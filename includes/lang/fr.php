@@ -365,6 +365,45 @@ return [
     'bn_report' => 'Signaler',
     'bn_notify' => 'Notifier',
 
+    // Password reset
+    'pr_link' => 'Mot de passe oublié ?',
+    'pr_title' => 'Récupération du mot de passe',
+    'pr_sub' => 'Saisissez votre e-mail : nous vous enverrons un lien de réinitialisation.',
+    'pr_send_btn' => 'Envoyer le lien',
+    'pr_sent' => "Si cet e-mail est enregistré, le lien de réinitialisation vient d'être envoyé.",
+    'pr_sent_hint' => 'Vérifiez votre boîte de réception et le dossier indésirables (Spam).',
+    'pr_too_soon' => 'Patientez une minute avant de demander un nouveau lien.',
+    'pr_new_title' => 'Nouveau mot de passe',
+    'pr_new_password' => 'Nouveau mot de passe',
+    'pr_save_btn' => 'Enregistrer le mot de passe',
+    'pr_changed' => 'Mot de passe modifié ! Vous pouvez maintenant vous connecter.',
+    'pr_invalid' => 'Lien invalide ou expiré.',
+    'pr_request_again' => 'Demander un nouveau lien',
+    'pr_email_subject' => 'Réinitialisation du mot de passe',
+    'pr_email_body' => 'Vous avez demandé la réinitialisation de votre mot de passe. Cliquez sur ce lien :',
+    'pr_email_expiry' => 'Ce lien est valable %d minutes seulement.',
+    'pr_email_ignore' => "Si vous n'êtes pas à l'origine de cette demande, ignorez ce message — votre compte est en sécurité.",
+
+    // Sharing
+    'sh_label' => 'Partager :',
+    'sh_copy' => 'Copier le lien',
+    'sh_copied' => '✔ Lien copié',
+
+    // Comments
+    'cm_title' => 'Discussion',
+    'cm_empty' => 'Aucun commentaire. Soyez le premier à apporter une information utile.',
+    'cm_add' => 'Ajouter un commentaire',
+    'cm_placeholder' => 'Apportez une info utile : le problème persiste-t-il ? quelque chose a changé ?',
+    'cm_send' => 'Publier',
+    'cm_posted' => 'Commentaire publié.',
+    'cm_too_short' => 'Commentaire trop court ou trop long.',
+    'cm_deleted' => 'Commentaire supprimé.',
+    'cm_delete' => 'Supprimer',
+    'cm_official' => 'Réponse officielle',
+    'cm_login_hint' => 'Connectez-vous pour participer à la discussion',
+    'notif_new_comment' => 'Nouveau commentaire sur un signalement que vous suivez 💬',
+    'notif_official_reply' => 'Réponse officielle sur votre signalement ✔',
+
     // Wizard steps + forms
     'wz_back' => 'Retour',
     'wz_next' => 'Suivant',

@@ -53,6 +53,16 @@ try {
 }
 
 $page_title = $a['name'];
+$og = [
+    'title' => '🤝 ' . $a['name'],
+    'description' => mb_strimwidth((string) $a['about'], 0, 180, '…'),
+    'url' => abs_url('association.php?id=' . $id),
+];
+if (!empty($profile['logo'])) {
+    $og['image'] = abs_url('uploads/' . rawurlencode($profile['logo']));
+}
+$shareUrl = $og['url'];
+$shareText = $a['name'];
 require __DIR__ . '/includes/layout/header.php';
 ?>
 <div class="container page">
@@ -76,6 +86,7 @@ require __DIR__ . '/includes/layout/header.php';
         <?php endforeach; ?>
       </div>
       <?php endif; ?>
+      <?php require __DIR__ . '/includes/layout/share.php'; ?>
     </div>
   </div>
 
